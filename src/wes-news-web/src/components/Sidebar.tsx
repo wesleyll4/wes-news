@@ -1,10 +1,11 @@
-import { NavLink } from 'react-router-dom'
+import { NavLink, useNavigate } from 'react-router-dom'
 import { Rss, Settings, BookOpen, Moon, Sun, List } from 'lucide-react'
 import { Category, CategoryLabels } from '../types'
 import { useUiStore } from '../store/uiStore'
 
 export default function Sidebar() {
   const { selectedCategory, setSelectedCategory, isDarkMode, toggleDarkMode, setUnreadOnly, unreadOnly } = useUiStore()
+  const navigate = useNavigate()
 
   const categories = Object.values(Category).filter((v): v is Category => typeof v === 'number')
 
@@ -32,7 +33,7 @@ export default function Sidebar() {
           {categories.map((cat) => (
             <button
               key={cat}
-              onClick={() => { setSelectedCategory(cat); setUnreadOnly(false) }}
+              onClick={() => { setSelectedCategory(cat); setUnreadOnly(false); navigate('/') }}
               className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-800 ${selectedCategory === cat ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-medium' : ''}`}
             >
               {CategoryLabels[cat]}
@@ -42,7 +43,7 @@ export default function Sidebar() {
 
         <div className="pt-2">
           <button
-            onClick={() => setUnreadOnly(!unreadOnly)}
+            onClick={() => { setUnreadOnly(!unreadOnly); navigate('/') }}
             className={`w-full flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-left hover:bg-gray-100 dark:hover:bg-gray-800 ${unreadOnly ? 'bg-blue-50 dark:bg-blue-950 text-blue-600 dark:text-blue-400 font-medium' : ''}`}
           >
             <BookOpen size={16} />
