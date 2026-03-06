@@ -16,9 +16,20 @@ builder.Services.AddCors(options =>
 {
     options.AddDefaultPolicy(policy =>
     {
-        string[] allowedOrigins = builder.Configuration
+        string[] defaultOrigins = new[] { "http://localhost:5173", "http://localhost:3000" };
+
+        string[] configOrigins = builder.Configuration
             .GetSection("AllowedOrigins")
-            .Get<string[]>() ?? new[] { "http://localhost:5173", "http://localhost:3000" };
+            .Get<string[]>() ?? Array.Empty<string>();
+
+        string[] envOrigins = (builder.Configuration["ALLOWED_ORIGINS"] ?? string.Empty)
+            .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+
+        string[] allowedOrigins = configOrigins
+            .Concat(envOrigins)
+            .Concat(defaultOrigins)
+            .Distinct()
+            .ToArray();
 
         policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
