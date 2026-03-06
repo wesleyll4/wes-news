@@ -33,6 +33,10 @@ public static class DependencyInjection
         services.Configure<DigestEmailOptions>(configuration.GetSection("DigestEmail"));
 
         services.AddHttpClient();
+        services.AddHttpClient("FeedAggregator", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(30);
+        });
         services.Configure<ResendClientOptions>(options =>
         {
             options.ApiToken = configuration["RESEND_APITOKEN"] ?? string.Empty;

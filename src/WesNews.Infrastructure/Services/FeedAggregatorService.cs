@@ -1,3 +1,4 @@
+using System.Net.Http;
 using CodeHollow.FeedReader;
 using Microsoft.Extensions.Logging;
 using WesNews.Application.Interfaces.Repositories;
@@ -9,11 +10,19 @@ namespace WesNews.Infrastructure.Services;
 public class FeedAggregatorService : IFeedAggregatorService
 {
     private readonly INewsArticleRepository _articleRepository;
+    private readonly IHttpClientFactory _httpClientFactory;
     private readonly ILogger<FeedAggregatorService> _logger;
 
-    public FeedAggregatorService(INewsArticleRepository articleRepository, ILogger<FeedAggregatorService> logger)
+    private const string UserAgent =
+        "Mozilla/5.0 (compatible; WesNewsBot/1.0; +https://github.com/wesleyll4/wes-news)";
+
+    public FeedAggregatorService(
+        INewsArticleRepository articleRepository,
+        IHttpClientFactory httpClientFactory,
+        ILogger<FeedAggregatorService> logger)
     {
         _articleRepository = articleRepository;
+        _httpClientFactory = httpClientFactory;
         _logger = logger;
     }
 
@@ -21,7 +30,15 @@ public class FeedAggregatorService : IFeedAggregatorService
     {
         try
         {
-            Feed feed = await FeedReader.ReadAsync(feedSource.Url);
+            byte[] content = await FetchContentAsync(feedSource.Url, cancellationToken);
+
+            if (!IsXmlContent(content))
+            {
+                _logger.LogWarning("Feed {FeedName} did not return XML — possibly blocked or redirected to HTML", feedSource.Name);
+                return;
+            }
+
+            Feed feed = FeedReader.ReadFromByteArray(content);
 
             List<NewsArticle> articles = feed.Items
                 .Where(item => !string.IsNullOrWhiteSpace(item.Link))
@@ -45,6 +62,33 @@ public class FeedAggregatorService : IFeedAggregatorService
         {
             _logger.LogError(ex, "Failed to fetch feed {FeedName} at {Url}", feedSource.Name, feedSource.Url);
         }
+    }
+
+    private async Task<byte[]> FetchContentAsync(string url, CancellationToken cancellationToken)
+    {
+        HttpClient client = _httpClientFactory.CreateClient("FeedAggregator");
+        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
+        request.Headers.TryAddWithoutValidation("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*");
+
+        using HttpResponseMessage response = await client.SendAsync(request, cancellationToken);
+        response.EnsureSuccessStatusCode();
+
+        return await response.Content.ReadAsByteArrayAsync(cancellationToken);
+    }
+
+    private static bool IsXmlContent(byte[] content)
+    {
+        if (content.Length < 5)
+        {
+            return false;
+        }
+
+        string start = System.Text.Encoding.UTF8.GetString(content, 0, Math.Min(content.Length, 512)).TrimStart();
+        return start.StartsWith("<?xml", StringComparison.OrdinalIgnoreCase)
+            || start.StartsWith("<rss", StringComparison.OrdinalIgnoreCase)
+            || start.StartsWith("<feed", StringComparison.OrdinalIgnoreCase)
+            || start.StartsWith("<atom", StringComparison.OrdinalIgnoreCase);
     }
 
     private static string StripHtml(string html)
