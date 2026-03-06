@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: [main]
+
+jobs:
+  backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "9.0.x"
+
+      - name: Restore
+        run: dotnet restore
+
+      - name: Build
+        run: dotnet build --no-restore -c Release
+
+      - name: Unit Tests
+        run: dotnet test tests/WesNews.UnitTests --no-build -c Release --verbosity normal
+
+      - name: Integration Tests
+        run: dotnet test tests/WesNews.IntegrationTests --no-build -c Release --verbosity normal
+
+  frontend:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: src/wes-news-web
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+          cache-dependency-path: src/wes-news-web/package-lock.json
+
+      - name: Install
+        run: npm ci
+
+      - name: Type Check
+        run: npm run type-check
+
+      - name: Build
+        run: npm run build

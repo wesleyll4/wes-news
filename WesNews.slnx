@@ -1,0 +1,12 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/WesNews.Api/WesNews.Api.csproj" />
+    <Project Path="src/WesNews.Application/WesNews.Application.csproj" />
+    <Project Path="src/WesNews.Domain/WesNews.Domain.csproj" />
+    <Project Path="src/WesNews.Infrastructure/WesNews.Infrastructure.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/WesNews.IntegrationTests/WesNews.IntegrationTests.csproj" />
+    <Project Path="tests/WesNews.UnitTests/WesNews.UnitTests.csproj" />
+  </Folder>
+</Solution>

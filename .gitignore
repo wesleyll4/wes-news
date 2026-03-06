@@ -1,0 +1,62 @@
+# ─── .NET ───────────────────────────────────────────────────────────────────
+bin/
+obj/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+*.userprefs
+.vs/
+*.nupkg
+*.snupkg
+*.lock.json
+!package-lock.json
+project.lock.json
+project.fragment.lock.json
+artifacts/
+
+# Test results & coverage
+TestResults/
+coverage/
+*.trx
+*.coverage
+*.coveragexml
+
+# SQLite databases (runtime)
+*.db
+*.db-shm
+*.db-wal
+
+# Publish output
+publish/
+**/Properties/PublishProfiles/
+
+# ─── Node / Frontend ────────────────────────────────────────────────────────
+node_modules/
+dist/
+.cache/
+.parcel-cache/
+*.tsbuildinfo
+
+# Vite
+.vite/
+
+# ─── Docker ─────────────────────────────────────────────────────────────────
+.docker/
+
+# ─── Environment & secrets ──────────────────────────────────────────────────
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# ─── IDE ────────────────────────────────────────────────────────────────────
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# ─── OS ─────────────────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini

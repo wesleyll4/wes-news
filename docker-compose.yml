@@ -1,0 +1,37 @@
+services:
+  api:
+    build:
+      context: .
+      dockerfile: src/WesNews.Api/Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Data Source=/data/wesnews.db
+      - RESEND_APITOKEN=${RESEND_APITOKEN}
+      - DigestEmail__ToEmail=${DIGEST_EMAIL_TO}
+      - DigestEmail__FromEmail=${DIGEST_EMAIL_FROM:-digest@wesnews.app}
+      - DigestEmail__CronExpression=${DIGEST_CRON:-0 0 7 * * ?}
+      - AllowedOrigins__0=http://localhost:3000
+    volumes:
+      - wesnews_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    build:
+      context: src/wes-news-web
+      dockerfile: Dockerfile
+    ports:
+      - "3000:80"
+    depends_on:
+      - api
+    restart: unless-stopped
+
+volumes:
+  wesnews_data:
