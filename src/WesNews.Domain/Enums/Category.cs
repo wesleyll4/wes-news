@@ -6,5 +6,6 @@ public enum Category
     AI = 2,
     Architecture = 3,
     DevOps = 4,
-    General = 5
+    General = 5,
+    GitHubTrends = 6
 }
