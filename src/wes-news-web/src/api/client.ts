@@ -1,8 +1,12 @@
 import axios from 'axios'
 import type { NewsArticleDto, FeedSourceDto, PagedResult, DigestPreviewDto, CreateFeedSourceRequest, UpdateFeedSourceRequest, Category } from '../types'
 
+const baseURL = import.meta.env.VITE_API_BASE_URL
+  ? `${import.meta.env.VITE_API_BASE_URL}/api`
+  : '/api'
+
 const api = axios.create({
-  baseURL: '/api',
+  baseURL,
   headers: { 'Content-Type': 'application/json' }
 })
 
