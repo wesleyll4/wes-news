@@ -1,5 +1,6 @@
 using System.Net.Http;
 using CodeHollow.FeedReader;
+using CodeHollow.FeedReader.Feeds;
 using Microsoft.Extensions.Logging;
 using WesNews.Application.Interfaces.Repositories;
 using WesNews.Application.Interfaces.Services;
@@ -40,8 +41,15 @@ public class FeedAggregatorService : IFeedAggregatorService
 
             Feed feed = FeedReader.ReadFromByteArray(content);
 
-            List<NewsArticle> articles = feed.Items
-                .Where(item => !string.IsNullOrWhiteSpace(item.Link))
+            IEnumerable<FeedItem> feedItems = feed.Items
+                .Where(item => !string.IsNullOrWhiteSpace(item.Link));
+
+            if (feedSource.MaxItemsPerFetch.HasValue)
+            {
+                feedItems = feedItems.Take(feedSource.MaxItemsPerFetch.Value);
+            }
+
+            List<NewsArticle> articles = feedItems
                 .Select(item => new NewsArticle
                 {
                     Id = Guid.NewGuid(),

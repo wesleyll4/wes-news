@@ -9,6 +9,7 @@ public class FeedSource
     public string Url { get; set; } = string.Empty;
     public Category Category { get; set; }
     public bool IsActive { get; set; } = true;
+    public int? MaxItemsPerFetch { get; set; }
     public DateTime? LastFetchedAt { get; set; }
     public ICollection<NewsArticle> Articles { get; set; } = new List<NewsArticle>();
 }

@@ -57,9 +57,9 @@ public class FeedSeeder
             new FeedSource { Id = Guid.NewGuid(), Name = "The New Stack", Url = "https://thenewstack.io/feed/", Category = Category.General, IsActive = true },
             new FeedSource { Id = Guid.NewGuid(), Name = "Stack Overflow Blog", Url = "https://stackoverflow.blog/feed/", Category = Category.General, IsActive = true },
             new FeedSource { Id = Guid.NewGuid(), Name = "InfoQ", Url = "https://www.infoq.com/rss/", Category = Category.General, IsActive = true },
-            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (All)", Url = "https://mshibanami.github.io/GitHubTrendingRSS/daily/unknown.xml", Category = Category.GitHubTrends, IsActive = true },
-            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (.NET / C#)", Url = "https://mshibanami.github.io/GitHubTrendingRSS/daily/c%23.xml", Category = Category.GitHubTrends, IsActive = true },
-            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (Hacking / Security)", Url = "https://github.com/topics/hacking.atom", Category = Category.GitHubTrends, IsActive = true },
+            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (All)", Url = "https://mshibanami.github.io/GitHubTrendingRSS/daily/unknown.xml", Category = Category.GitHubTrends, IsActive = true, MaxItemsPerFetch = 10 },
+            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (.NET / C#)", Url = "https://mshibanami.github.io/GitHubTrendingRSS/daily/c%23.xml", Category = Category.GitHubTrends, IsActive = true, MaxItemsPerFetch = 10 },
+            new FeedSource { Id = Guid.NewGuid(), Name = "GitHub Trending (Hacking / Security)", Url = "https://github.com/topics/hacking.atom", Category = Category.GitHubTrends, IsActive = true, MaxItemsPerFetch = 10 },
         };
     }
 }
