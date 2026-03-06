@@ -44,17 +44,6 @@ src/
 └── WesNews.Api/             # Controllers REST, DI root, Swagger
 ```
 
-```
-WesNews.Domain
-    ↑
-WesNews.Application
-    ↑
-WesNews.Infrastructure
-    ↑
-WesNews.Api
-
-```
-
 ### Fluxo de dados
 
 ```
