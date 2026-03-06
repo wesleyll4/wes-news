@@ -4,14 +4,15 @@ import { newsApi } from '../api/client'
 import ArticleCard from '../components/ArticleCard'
 import ArticleReader from '../components/ArticleReader'
 import SearchBar from '../components/SearchBar'
-import { Loader2, RefreshCw } from 'lucide-react'
+import { Loader2, RefreshCw, Inbox } from 'lucide-react'
 import type { NewsArticleDto } from '../types'
+import { CategoryLabels } from '../types'
 
 export default function FeedPage() {
   const { selectedCategory, searchTerm, unreadOnly, selectedArticleId, setSelectedArticleId } = useUiStore()
   const queryClient = useQueryClient()
 
-  const { data, isLoading, refetch } = useQuery({
+  const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['news', selectedCategory, searchTerm, unreadOnly],
     queryFn: () => newsApi.getAll({
       category: selectedCategory,
@@ -26,7 +27,7 @@ export default function FeedPage() {
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ['news'] })
   })
 
-  const handleArticleClick = (article: NewsArticleDto) => {
+  function handleArticleClick(article: NewsArticleDto) {
     setSelectedArticleId(article.id)
     if (!article.isRead) {
       markAsReadMutation.mutate(article.id)
@@ -35,29 +36,44 @@ export default function FeedPage() {
 
   const selectedArticle = data?.items.find((a) => a.id === selectedArticleId)
 
+  const pageTitle = selectedCategory
+    ? CategoryLabels[selectedCategory]
+    : unreadOnly
+    ? 'Unread'
+    : 'All News'
+
   return (
-    <div className="flex h-full">
-      <div className="flex-1 flex flex-col min-w-0">
-        <div className="px-4 py-3 border-b border-gray-200 dark:border-gray-800 flex items-center gap-3">
+    <div className="flex h-full overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+        <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 shrink-0">
           <div className="flex-1">
             <SearchBar />
           </div>
           <button
             onClick={() => refetch()}
-            className="p-2 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"
+            className={`p-2 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isFetching ? 'animate-spin' : ''}`}
           >
-            <RefreshCw size={16} />
+            <RefreshCw size={15} />
           </button>
+        </div>
+
+        <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
+          <h1 className="font-display font-bold text-lg tracking-tight">{pageTitle}</h1>
+          {data && (
+            <span className="text-xs text-zinc-400 tabular-nums">{data.totalCount} articles</span>
+          )}
         </div>
 
         <div className="flex-1 overflow-y-auto">
           {isLoading ? (
-            <div className="flex items-center justify-center h-40">
-              <Loader2 size={24} className="animate-spin text-blue-500" />
+            <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-400">
+              <Loader2 size={22} className="animate-spin" />
+              <span className="text-sm">Loading articles...</span>
             </div>
           ) : data?.items.length === 0 ? (
-            <div className="flex items-center justify-center h-40 text-sm text-gray-400">
-              No articles found
+            <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-400">
+              <Inbox size={28} />
+              <span className="text-sm">No articles found</span>
             </div>
           ) : (
             data?.items.map((article) => (
@@ -70,12 +86,6 @@ export default function FeedPage() {
             ))
           )}
         </div>
-
-        {data && (
-          <div className="px-4 py-2 border-t border-gray-200 dark:border-gray-800 text-xs text-gray-400">
-            {data.totalCount} articles
-          </div>
-        )}
       </div>
 
       {selectedArticle && (
