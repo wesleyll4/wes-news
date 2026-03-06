@@ -48,8 +48,11 @@ src/
 WesNews.Domain
     ↑
 WesNews.Application
-    ↑               ↑
-WesNews.Infrastructure   WesNews.Api
+    ↑
+WesNews.Infrastructure
+    ↑
+WesNews.Api
+
 ```
 
 ### Fluxo de dados
