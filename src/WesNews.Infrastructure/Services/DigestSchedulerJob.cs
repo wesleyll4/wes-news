@@ -5,21 +5,12 @@ using WesNews.Application.Services;
 namespace WesNews.Infrastructure.Services;
 
 [DisallowConcurrentExecution]
-public class DigestSchedulerJob : IJob
+public class DigestSchedulerJob(DigestService digestService, ILogger<DigestSchedulerJob> logger) : IJob
 {
-    private readonly DigestService _digestService;
-    private readonly ILogger<DigestSchedulerJob> _logger;
-
-    public DigestSchedulerJob(DigestService digestService, ILogger<DigestSchedulerJob> logger)
-    {
-        _digestService = digestService;
-        _logger = logger;
-    }
-
     public async Task Execute(IJobExecutionContext context)
     {
-        _logger.LogInformation("Running daily digest job");
-        await _digestService.SendAsync(context.CancellationToken);
-        _logger.LogInformation("Daily digest job completed");
+        logger.LogInformation("Running daily digest job");
+        await digestService.SendAsync(context.CancellationToken);
+        logger.LogInformation("Daily digest job completed");
     }
 }

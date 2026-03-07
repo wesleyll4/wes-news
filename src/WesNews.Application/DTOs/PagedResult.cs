@@ -1,20 +1,12 @@
 namespace WesNews.Application.DTOs;
 
-public class PagedResult<T>
+public class PagedResult<T>(IReadOnlyList<T> items, int totalCount, int page, int pageSize)
 {
-    public IReadOnlyList<T> Items { get; init; }
-    public int TotalCount { get; init; }
-    public int Page { get; init; }
-    public int PageSize { get; init; }
+    public IReadOnlyList<T> Items { get; init; } = items;
+    public int TotalCount { get; init; } = totalCount;
+    public int Page { get; init; } = page;
+    public int PageSize { get; init; } = pageSize;
     public int TotalPages => (int)Math.Ceiling(TotalCount / (double)PageSize);
     public bool HasNextPage => Page < TotalPages;
     public bool HasPreviousPage => Page > 1;
-
-    public PagedResult(IReadOnlyList<T> items, int totalCount, int page, int pageSize)
-    {
-        Items = items;
-        TotalCount = totalCount;
-        Page = page;
-        PageSize = pageSize;
-    }
 }

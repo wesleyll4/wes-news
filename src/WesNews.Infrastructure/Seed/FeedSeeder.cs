@@ -6,20 +6,11 @@ using WesNews.Infrastructure.Data;
 
 namespace WesNews.Infrastructure.Seed;
 
-public class FeedSeeder
+public class FeedSeeder(AppDbContext context, ILogger<FeedSeeder> logger)
 {
-    private readonly AppDbContext _context;
-    private readonly ILogger<FeedSeeder> _logger;
-
-    public FeedSeeder(AppDbContext context, ILogger<FeedSeeder> logger)
-    {
-        _context = context;
-        _logger = logger;
-    }
-
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
-        bool hasFeeds = await _context.FeedSources.AnyAsync(cancellationToken);
+        bool hasFeeds = await context.FeedSources.AnyAsync(cancellationToken);
 
         if (hasFeeds)
         {
@@ -27,10 +18,10 @@ public class FeedSeeder
         }
 
         List<FeedSource> seeds = GetDefaultFeeds();
-        await _context.FeedSources.AddRangeAsync(seeds, cancellationToken);
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.FeedSources.AddRangeAsync(seeds, cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
 
-        _logger.LogInformation("Seeded {Count} default feed sources", seeds.Count);
+        logger.LogInformation("Seeded {Count} default feed sources", seeds.Count);
     }
 
     private static List<FeedSource> GetDefaultFeeds()

@@ -8,24 +8,13 @@ using WesNews.Domain.Entities;
 
 namespace WesNews.Infrastructure.Services;
 
-public class FeedAggregatorService : IFeedAggregatorService
+public class FeedAggregatorService(
+    INewsArticleRepository articleRepository,
+    IHttpClientFactory httpClientFactory,
+    ILogger<FeedAggregatorService> logger) : IFeedAggregatorService
 {
-    private readonly INewsArticleRepository _articleRepository;
-    private readonly IHttpClientFactory _httpClientFactory;
-    private readonly ILogger<FeedAggregatorService> _logger;
-
     private const string UserAgent =
         "Mozilla/5.0 (compatible; WesNewsBot/1.0; +https://github.com/wesleyll4/wes-news)";
-
-    public FeedAggregatorService(
-        INewsArticleRepository articleRepository,
-        IHttpClientFactory httpClientFactory,
-        ILogger<FeedAggregatorService> logger)
-    {
-        _articleRepository = articleRepository;
-        _httpClientFactory = httpClientFactory;
-        _logger = logger;
-    }
 
     public async Task FetchAndSaveAsync(FeedSource feedSource, CancellationToken cancellationToken = default)
     {
@@ -35,7 +24,7 @@ public class FeedAggregatorService : IFeedAggregatorService
 
             if (!IsXmlContent(content))
             {
-                _logger.LogWarning("Feed {FeedName} did not return XML — possibly blocked or redirected to HTML", feedSource.Name);
+                logger.LogWarning("Feed {FeedName} did not return XML — possibly blocked or redirected to HTML", feedSource.Name);
                 return;
             }
 
@@ -62,19 +51,19 @@ public class FeedAggregatorService : IFeedAggregatorService
                 })
                 .ToList();
 
-            await _articleRepository.UpsertRangeAsync(articles, cancellationToken);
+            await articleRepository.UpsertRangeAsync(articles, cancellationToken);
 
-            _logger.LogInformation("Fetched {Count} articles from {FeedName}", articles.Count, feedSource.Name);
+            logger.LogInformation("Fetched {Count} articles from {FeedName}", articles.Count, feedSource.Name);
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Failed to fetch feed {FeedName} at {Url}", feedSource.Name, feedSource.Url);
+            logger.LogError(ex, "Failed to fetch feed {FeedName} at {Url}", feedSource.Name, feedSource.Url);
         }
     }
 
     private async Task<byte[]> FetchContentAsync(string url, CancellationToken cancellationToken)
     {
-        HttpClient client = _httpClientFactory.CreateClient("FeedAggregator");
+        HttpClient client = httpClientFactory.CreateClient("FeedAggregator");
         using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
         request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
         request.Headers.TryAddWithoutValidation("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*");

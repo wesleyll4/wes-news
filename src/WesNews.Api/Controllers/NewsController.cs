@@ -7,15 +7,8 @@ namespace WesNews.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class NewsController : ControllerBase
+public class NewsController(NewsService newsService) : ControllerBase
 {
-    private readonly NewsService _newsService;
-
-    public NewsController(NewsService newsService)
-    {
-        _newsService = newsService;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(PagedResult<NewsArticleDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetNews(
@@ -35,7 +28,7 @@ public class NewsController : ControllerBase
             PageSize = pageSize
         };
 
-        PagedResult<NewsArticleDto> result = await _newsService.GetPagedAsync(query, cancellationToken);
+        PagedResult<NewsArticleDto> result = await newsService.GetPagedAsync(query, cancellationToken);
         return Ok(result);
     }
 
@@ -44,7 +37,7 @@ public class NewsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> MarkAsRead(Guid id, CancellationToken cancellationToken = default)
     {
-        bool success = await _newsService.MarkAsReadAsync(id, cancellationToken);
+        bool success = await newsService.MarkAsReadAsync(id, cancellationToken);
         return success ? NoContent() : NotFound();
     }
 
@@ -53,7 +46,7 @@ public class NewsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete(Guid id, CancellationToken cancellationToken = default)
     {
-        bool success = await _newsService.DeleteAsync(id, cancellationToken);
+        bool success = await newsService.DeleteAsync(id, cancellationToken);
         return success ? NoContent() : NotFound();
     }
 }

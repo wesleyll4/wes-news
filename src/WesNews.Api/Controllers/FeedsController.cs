@@ -6,20 +6,13 @@ namespace WesNews.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class FeedsController : ControllerBase
+public class FeedsController(FeedService feedService) : ControllerBase
 {
-    private readonly FeedService _feedService;
-
-    public FeedsController(FeedService feedService)
-    {
-        _feedService = feedService;
-    }
-
     [HttpGet]
     [ProducesResponseType(typeof(IReadOnlyList<FeedSourceDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFeeds(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<FeedSourceDto> feeds = await _feedService.GetAllAsync(cancellationToken);
+        IReadOnlyList<FeedSourceDto> feeds = await feedService.GetAllAsync(cancellationToken);
         return Ok(feeds);
     }
 
@@ -36,7 +29,7 @@ public class FeedsController : ControllerBase
 
         try
         {
-            FeedSourceDto created = await _feedService.AddAsync(request, cancellationToken);
+            FeedSourceDto created = await feedService.AddAsync(request, cancellationToken);
             return CreatedAtAction(nameof(GetFeeds), new { id = created.Id }, created);
         }
         catch (InvalidOperationException ex)
@@ -50,7 +43,7 @@ public class FeedsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateFeed(Guid id, [FromBody] UpdateFeedSourceRequest request, CancellationToken cancellationToken = default)
     {
-        bool success = await _feedService.UpdateAsync(id, request, cancellationToken);
+        bool success = await feedService.UpdateAsync(id, request, cancellationToken);
         return success ? NoContent() : NotFound();
     }
 
@@ -59,7 +52,7 @@ public class FeedsController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteFeed(Guid id, CancellationToken cancellationToken = default)
     {
-        bool success = await _feedService.DeleteAsync(id, cancellationToken);
+        bool success = await feedService.DeleteAsync(id, cancellationToken);
         return success ? NoContent() : NotFound();
     }
 }

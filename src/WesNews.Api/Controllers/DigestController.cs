@@ -6,20 +6,13 @@ namespace WesNews.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-public class DigestController : ControllerBase
+public class DigestController(DigestService digestService) : ControllerBase
 {
-    private readonly DigestService _digestService;
-
-    public DigestController(DigestService digestService)
-    {
-        _digestService = digestService;
-    }
-
     [HttpGet("preview")]
     [ProducesResponseType(typeof(DigestPreviewDto), StatusCodes.Status200OK)]
     public async Task<IActionResult> Preview(CancellationToken cancellationToken = default)
     {
-        DigestPreviewDto preview = await _digestService.GetPreviewAsync(cancellationToken);
+        DigestPreviewDto preview = await digestService.GetPreviewAsync(cancellationToken);
         return Ok(preview);
     }
 
@@ -27,7 +20,7 @@ public class DigestController : ControllerBase
     [ProducesResponseType(StatusCodes.Status202Accepted)]
     public async Task<IActionResult> Send(CancellationToken cancellationToken = default)
     {
-        await _digestService.SendAsync(cancellationToken);
+        await digestService.SendAsync(cancellationToken);
         return Accepted();
     }
 }

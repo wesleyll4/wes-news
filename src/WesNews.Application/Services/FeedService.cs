@@ -4,24 +4,17 @@ using WesNews.Domain.Entities;
 
 namespace WesNews.Application.Services;
 
-public class FeedService
+public class FeedService(IFeedSourceRepository repository)
 {
-    private readonly IFeedSourceRepository _repository;
-
-    public FeedService(IFeedSourceRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task<IReadOnlyList<FeedSourceDto>> GetAllAsync(CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<FeedSource> feeds = await _repository.GetAllAsync(cancellationToken);
+        IReadOnlyList<FeedSource> feeds = await repository.GetAllAsync(cancellationToken);
         return feeds.Select(MapToDto).ToList().AsReadOnly();
     }
 
     public async Task<FeedSourceDto> AddAsync(CreateFeedSourceRequest request, CancellationToken cancellationToken = default)
     {
-        bool exists = await _repository.ExistsByUrlAsync(request.Url, cancellationToken);
+        bool exists = await repository.ExistsByUrlAsync(request.Url, cancellationToken);
 
         if (exists)
         {
@@ -37,13 +30,13 @@ public class FeedService
             IsActive = true
         };
 
-        FeedSource created = await _repository.AddAsync(feedSource, cancellationToken);
+        FeedSource created = await repository.AddAsync(feedSource, cancellationToken);
         return MapToDto(created);
     }
 
     public async Task<bool> UpdateAsync(Guid id, UpdateFeedSourceRequest request, CancellationToken cancellationToken = default)
     {
-        FeedSource? feed = await _repository.GetByIdAsync(id, cancellationToken);
+        FeedSource? feed = await repository.GetByIdAsync(id, cancellationToken);
 
         if (feed is null)
         {
@@ -65,12 +58,12 @@ public class FeedService
             feed.Category = request.Category.Value;
         }
 
-        return await _repository.UpdateAsync(feed, cancellationToken);
+        return await repository.UpdateAsync(feed, cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _repository.DeleteAsync(id, cancellationToken);
+        return await repository.DeleteAsync(id, cancellationToken);
     }
 
     private static FeedSourceDto MapToDto(FeedSource feed)

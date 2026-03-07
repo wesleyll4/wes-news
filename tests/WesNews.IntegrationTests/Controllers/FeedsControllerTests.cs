@@ -9,20 +9,13 @@ using WesNews.IntegrationTests.Helpers;
 
 namespace WesNews.IntegrationTests.Controllers;
 
-public class FeedsControllerTests : IClassFixture<CustomWebAppFactory>, IAsyncLifetime
+public class FeedsControllerTests(CustomWebAppFactory factory) : IClassFixture<CustomWebAppFactory>, IAsyncLifetime
 {
-    private readonly CustomWebAppFactory _factory;
-    private readonly HttpClient _client;
-
-    public FeedsControllerTests(CustomWebAppFactory factory)
-    {
-        _factory = factory;
-        _client = factory.CreateClient();
-    }
+    private readonly HttpClient _client = factory.CreateClient();
 
     public async Task InitializeAsync()
     {
-        using IServiceScope scope = _factory.Services.CreateScope();
+        using IServiceScope scope = factory.Services.CreateScope();
         AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         await context.Database.EnsureDeletedAsync();
         await context.Database.EnsureCreatedAsync();

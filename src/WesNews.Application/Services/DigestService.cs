@@ -1,3 +1,4 @@
+using Microsoft.Extensions.Logging;
 using WesNews.Application.DTOs;
 using WesNews.Application.Interfaces.Repositories;
 using WesNews.Application.Interfaces.Services;
@@ -6,17 +7,9 @@ using WesNews.Domain.Enums;
 
 namespace WesNews.Application.Services;
 
-public class DigestService
+public class DigestService(INewsArticleRepository articleRepository, IDigestEmailService emailService, ILogger<DigestService> logger)
 {
-    private readonly INewsArticleRepository _articleRepository;
-    private readonly IDigestEmailService _emailService;
     private const int ArticlesPerCategory = 5;
-
-    public DigestService(INewsArticleRepository articleRepository, IDigestEmailService emailService)
-    {
-        _articleRepository = articleRepository;
-        _emailService = emailService;
-    }
 
     public async Task<IReadOnlyList<NewsArticle>> BuildDigestArticlesAsync(CancellationToken cancellationToken = default)
     {
@@ -24,7 +17,7 @@ public class DigestService
 
         foreach (Category category in Enum.GetValues<Category>())
         {
-            NewsQuery query = new NewsQuery
+            NewsQuery query = new()
             {
                 Category = category,
                 UnreadOnly = true,
@@ -32,7 +25,7 @@ public class DigestService
                 PageSize = ArticlesPerCategory
             };
 
-            PagedResult<NewsArticle> result = await _articleRepository.GetPagedAsync(query, cancellationToken);
+            PagedResult<NewsArticle> result = await articleRepository.GetPagedAsync(query, cancellationToken);
             allArticles.AddRange(result.Items);
         }
 
@@ -41,14 +34,15 @@ public class DigestService
 
     public async Task SendAsync(CancellationToken cancellationToken = default)
     {
+        logger.LogInformation("Starting digest email generation and sending process");
         IReadOnlyList<NewsArticle> articles = await BuildDigestArticlesAsync(cancellationToken);
-        await _emailService.SendAsync(articles, cancellationToken);
+        await emailService.SendAsync(articles, cancellationToken);
     }
 
     public async Task<DigestPreviewDto> GetPreviewAsync(CancellationToken cancellationToken = default)
     {
         IReadOnlyList<NewsArticle> articles = await BuildDigestArticlesAsync(cancellationToken);
-        string html = _emailService.BuildPreviewHtml(articles);
+        string html = emailService.BuildPreviewHtml(articles);
         return new DigestPreviewDto { Html = html, ArticleCount = articles.Count };
     }
 }

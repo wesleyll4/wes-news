@@ -4,18 +4,11 @@ using WesNews.Domain.Entities;
 
 namespace WesNews.Application.Services;
 
-public class NewsService
+public class NewsService(INewsArticleRepository repository)
 {
-    private readonly INewsArticleRepository _repository;
-
-    public NewsService(INewsArticleRepository repository)
-    {
-        _repository = repository;
-    }
-
     public async Task<PagedResult<NewsArticleDto>> GetPagedAsync(NewsQuery query, CancellationToken cancellationToken = default)
     {
-        PagedResult<NewsArticle> result = await _repository.GetPagedAsync(query, cancellationToken);
+        PagedResult<NewsArticle> result = await repository.GetPagedAsync(query, cancellationToken);
 
         IReadOnlyList<NewsArticleDto> dtos = result.Items
             .Select(MapToDto)
@@ -27,12 +20,12 @@ public class NewsService
 
     public async Task<bool> MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _repository.MarkAsReadAsync(id, cancellationToken);
+        return await repository.MarkAsReadAsync(id, cancellationToken);
     }
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _repository.DeleteAsync(id, cancellationToken);
+        return await repository.DeleteAsync(id, cancellationToken);
     }
 
     private static NewsArticleDto MapToDto(NewsArticle article)

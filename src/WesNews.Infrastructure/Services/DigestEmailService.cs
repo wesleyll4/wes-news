@@ -7,35 +7,46 @@ using WesNews.Infrastructure.Configuration;
 
 namespace WesNews.Infrastructure.Services;
 
-public class DigestEmailService : IDigestEmailService
+public class DigestEmailService(IResend resend, IOptions<DigestEmailOptions> options, ILogger<DigestEmailService> logger) : IDigestEmailService
 {
-    private readonly IResend _resend;
-    private readonly DigestEmailOptions _options;
-    private readonly ILogger<DigestEmailService> _logger;
-
-    public DigestEmailService(IResend resend, IOptions<DigestEmailOptions> options, ILogger<DigestEmailService> logger)
-    {
-        _resend = resend;
-        _options = options.Value;
-        _logger = logger;
-    }
+    private readonly DigestEmailOptions _options = options.Value;
 
     public async Task SendAsync(IEnumerable<NewsArticle> articles, CancellationToken cancellationToken = default)
     {
-        string html = BuildPreviewHtml(articles);
-
-        EmailMessage message = new EmailMessage
+        try
         {
-            From = _options.FromEmail,
-            Subject = $"WesNews Digest — {DateTime.UtcNow:dd/MM/yyyy}",
-            HtmlBody = html
-        };
+            if (string.IsNullOrWhiteSpace(_options.ToEmail) || string.IsNullOrWhiteSpace(_options.FromEmail))
+            {
+                logger.LogWarning("Digest email not sent because ToEmail or FromEmail is not configured");
+                return;
+            }
+            string html = BuildPreviewHtml(articles);
 
-        message.To.Add(_options.ToEmail);
+            logger.LogInformation("Sending digest email to {ToEmail} with {ArticleCount} articles", _options.ToEmail, articles.Count());
 
-        await _resend.EmailSendAsync(message, cancellationToken);
+            EmailMessage message = new()
+            {
+                From = _options.FromEmail,
+                Subject = $"WesNews Digest — {DateTime.UtcNow:dd/MM/yyyy}",
+                HtmlBody = html
+            };
 
-        _logger.LogInformation("Digest email sent to {ToEmail}", _options.ToEmail);
+            message.To.Add(_options.ToEmail);
+
+            await resend.EmailSendAsync(message, cancellationToken);
+
+            logger.LogInformation("Digest email sent to {ToEmail}", _options.ToEmail);
+        }
+        catch (OptionsValidationException ex)
+        {
+            logger.LogError(ex, "Invalid digest email configuration");
+            return; 
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while sending the digest email");
+            throw;
+        }
     }
 
     public string BuildPreviewHtml(IEnumerable<NewsArticle> articles)

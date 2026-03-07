@@ -3,10 +3,8 @@ using WesNews.Domain.Entities;
 
 namespace WesNews.Infrastructure.Data;
 
-public class AppDbContext : DbContext
+public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
-    public AppDbContext(DbContextOptions<AppDbContext> options) : base(options) { }
-
     public DbSet<NewsArticle> NewsArticles => Set<NewsArticle>();
     public DbSet<FeedSource> FeedSources => Set<FeedSource>();
 

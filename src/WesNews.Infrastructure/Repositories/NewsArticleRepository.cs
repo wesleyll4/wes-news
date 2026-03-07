@@ -6,18 +6,11 @@ using WesNews.Infrastructure.Data;
 
 namespace WesNews.Infrastructure.Repositories;
 
-public class NewsArticleRepository : INewsArticleRepository
+public class NewsArticleRepository(AppDbContext context) : INewsArticleRepository
 {
-    private readonly AppDbContext _context;
-
-    public NewsArticleRepository(AppDbContext context)
-    {
-        _context = context;
-    }
-
     public async Task<PagedResult<NewsArticle>> GetPagedAsync(NewsQuery query, CancellationToken cancellationToken = default)
     {
-        IQueryable<NewsArticle> queryable = _context.NewsArticles
+        IQueryable<NewsArticle> queryable = context.NewsArticles
             .Include(a => a.FeedSource)
             .AsNoTracking();
 
@@ -52,14 +45,14 @@ public class NewsArticleRepository : INewsArticleRepository
 
     public async Task<NewsArticle?> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        return await _context.NewsArticles
+        return await context.NewsArticles
             .Include(a => a.FeedSource)
             .FirstOrDefaultAsync(a => a.Id == id, cancellationToken);
     }
 
     public async Task<bool> MarkAsReadAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        int affected = await _context.NewsArticles
+        int affected = await context.NewsArticles
             .Where(a => a.Id == id)
             .ExecuteUpdateAsync(s => s.SetProperty(a => a.IsRead, true), cancellationToken);
 
@@ -68,7 +61,7 @@ public class NewsArticleRepository : INewsArticleRepository
 
     public async Task<bool> DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        int affected = await _context.NewsArticles
+        int affected = await context.NewsArticles
             .Where(a => a.Id == id)
             .ExecuteDeleteAsync(cancellationToken);
 
@@ -79,15 +72,15 @@ public class NewsArticleRepository : INewsArticleRepository
     {
         foreach (NewsArticle article in articles)
         {
-            bool exists = await _context.NewsArticles
+            bool exists = await context.NewsArticles
                 .AnyAsync(a => a.Url == article.Url, cancellationToken);
 
             if (!exists)
             {
-                await _context.NewsArticles.AddAsync(article, cancellationToken);
+                await context.NewsArticles.AddAsync(article, cancellationToken);
             }
         }
 
-        await _context.SaveChangesAsync(cancellationToken);
+        await context.SaveChangesAsync(cancellationToken);
     }
 }
