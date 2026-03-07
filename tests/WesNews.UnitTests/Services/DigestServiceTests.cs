@@ -1,4 +1,5 @@
 using FluentAssertions;
+using Microsoft.Extensions.Logging;
 using NSubstitute;
 using WesNews.Application.DTOs;
 using WesNews.Application.Interfaces.Repositories;
@@ -13,13 +14,16 @@ public class DigestServiceTests
 {
     private readonly INewsArticleRepository _articleRepository;
     private readonly IDigestEmailService _emailService;
+    private readonly ILogger<DigestService> logger;
     private readonly DigestService _sut;
+
 
     public DigestServiceTests()
     {
         _articleRepository = Substitute.For<INewsArticleRepository>();
         _emailService = Substitute.For<IDigestEmailService>();
-        _sut = new DigestService(_articleRepository, _emailService);
+        logger = Substitute.For<ILogger<DigestService>>();
+        _sut = new DigestService(_articleRepository, _emailService, logger);
     }
 
     [Fact]
