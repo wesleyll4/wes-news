@@ -7,10 +7,8 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 ---
 
 ## TODO's
-- **Sistema de login
-- **Melhorar visual dos cards
-
----
+- **Sistema de login**
+- **Melhorar visual dos cards**
 
 ---
 
