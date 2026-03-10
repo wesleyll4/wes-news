@@ -6,9 +6,11 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 
 ---
 
-## TODO's
+## Todo
+
 - **Sistema de login**
 - **Melhorar visual dos cards**
+- **Multi linguagem**
 
 ---
 
