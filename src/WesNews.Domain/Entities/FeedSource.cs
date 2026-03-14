@@ -11,5 +11,5 @@ public class FeedSource
     public bool IsActive { get; set; } = true;
     public int? MaxItemsPerFetch { get; set; }
     public DateTime? LastFetchedAt { get; set; }
-    public ICollection<NewsArticle> Articles { get; set; } = new List<NewsArticle>();
+    public ICollection<NewsArticle> Articles { get; set; } = [];
 }
