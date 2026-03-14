@@ -36,9 +36,32 @@ public class BackgroundFetchService(IServiceScopeFactory scopeFactory, ILogger<B
 
         logger.LogInformation("Fetching {Count} active feeds", activeFeeds.Count);
 
+        using SemaphoreSlim semaphore = new SemaphoreSlim(5, 5);
+        List<Task> fetchTasks = new List<Task>();
+
         foreach (FeedSource feed in activeFeeds)
         {
-            await aggregatorService.FetchAndSaveAsync(feed, cancellationToken);
+            await semaphore.WaitAsync(cancellationToken);
+
+            Task task = Task.Run(async () =>
+            {
+                try
+                {
+                    await aggregatorService.FetchAndSaveAsync(feed, cancellationToken);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Background error fetching feed {FeedName} ({Url})", feed.Name, feed.Url);
+                }
+                finally
+                {
+                    semaphore.Release();
+                }
+            }, cancellationToken);
+
+            fetchTasks.Add(task);
         }
+
+        await Task.WhenAll(fetchTasks);
     }
 }

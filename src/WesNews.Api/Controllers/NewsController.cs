@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using WesNews.Application.DTOs;
 using WesNews.Application.Services;
@@ -7,6 +8,7 @@ namespace WesNews.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class NewsController(NewsService newsService) : ControllerBase
 {
     [HttpGet]

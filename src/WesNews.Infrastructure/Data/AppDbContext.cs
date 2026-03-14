@@ -7,9 +7,18 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 {
     public DbSet<NewsArticle> NewsArticles => Set<NewsArticle>();
     public DbSet<FeedSource> FeedSources => Set<FeedSource>();
+    public DbSet<User> Users => Set<User>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
+            entity.Property(u => u.FullName).HasMaxLength(200);
+            entity.Property(u => u.PasswordHash).IsRequired();
+        });
         modelBuilder.Entity<NewsArticle>(entity =>
         {
             entity.HasKey(a => a.Id);

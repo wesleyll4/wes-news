@@ -123,7 +123,7 @@ export default function SourcesPage() {
                   <span className="text-xs text-zinc-300 dark:text-zinc-700">({items.length})</span>
                 </div>
                 <div className="space-y-1">
-                  {items.map((feed) => (
+                  {items.map((feed: any) => (
                     <div
                       key={feed.id}
                       className={`flex items-center justify-between px-4 py-3 rounded-xl border transition-colors ${feed.isActive ? 'border-zinc-100 dark:border-zinc-800 bg-white dark:bg-zinc-900' : 'border-zinc-100 dark:border-zinc-800/50 bg-zinc-50 dark:bg-zinc-900/40 opacity-50'}`}

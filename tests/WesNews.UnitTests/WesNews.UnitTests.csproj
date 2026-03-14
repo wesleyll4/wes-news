@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>net9.0</TargetFramework>
@@ -23,6 +23,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\WesNews.Application\WesNews.Application.csproj" />
     <ProjectReference Include="..\..\src\WesNews.Domain\WesNews.Domain.csproj" />
+    <ProjectReference Include="..\..\src\WesNews.Infrastructure\WesNews.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>

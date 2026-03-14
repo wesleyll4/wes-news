@@ -36,9 +36,27 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             services.AddScoped(_ => emailStub);
 
             RemoveHostedService<WesNews.Infrastructure.BackgroundServices.BackgroundFetchService>(services);
+
+            services.AddAuthentication("Test")
+                .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+            
+            services.PostConfigure<Microsoft.AspNetCore.Authentication.AuthenticationOptions>(options =>
+            {
+                options.DefaultAuthenticateScheme = "Test";
+                options.DefaultChallengeScheme = "Test";
+            });
+
+            services.AddAuthorizationBuilder()
+                .SetFallbackPolicy(new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder("Test").RequireAuthenticatedUser().Build());
         });
 
         builder.UseEnvironment("Testing");
+    }
+
+    protected override void ConfigureClient(HttpClient client)
+    {
+        base.ConfigureClient(client);
+        client.DefaultRequestHeaders.Authorization = new System.Net.Http.Headers.AuthenticationHeaderValue("Test");
     }
 
     private static void RemoveService<TService>(IServiceCollection services)
@@ -67,5 +85,22 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
         {
             _connection.Dispose();
         }
+    }
+}
+
+public class TestAuthHandler(
+    Microsoft.Extensions.Options.IOptionsMonitor<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions> options,
+    Microsoft.Extensions.Logging.ILoggerFactory logger,
+    System.Text.Encodings.Web.UrlEncoder encoder)
+    : Microsoft.AspNetCore.Authentication.AuthenticationHandler<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions>(options, logger, encoder)
+{
+    protected override Task<Microsoft.AspNetCore.Authentication.AuthenticateResult> HandleAuthenticateAsync()
+    {
+        System.Security.Claims.Claim[] claims = [new(System.Security.Claims.ClaimTypes.Name, "TestUser"), new(System.Security.Claims.ClaimTypes.Role, "Admin")];
+        System.Security.Claims.ClaimsIdentity identity = new System.Security.Claims.ClaimsIdentity(claims, "Test");
+        System.Security.Claims.ClaimsPrincipal principal = new System.Security.Claims.ClaimsPrincipal(identity);
+        Microsoft.AspNetCore.Authentication.AuthenticationTicket ticket = new Microsoft.AspNetCore.Authentication.AuthenticationTicket(principal, "Test");
+        
+        return Task.FromResult(Microsoft.AspNetCore.Authentication.AuthenticateResult.Success(ticket));
     }
 }

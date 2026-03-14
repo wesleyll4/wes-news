@@ -38,18 +38,18 @@ public class FeedAggregatorService(
                 feedItems = feedItems.Take(feedSource.MaxItemsPerFetch.Value);
             }
 
-            List<NewsArticle> articles = feedItems
+            List<NewsArticle> articles = [.. feedItems
                 .Select(item => new NewsArticle
                 {
                     Id = Guid.NewGuid(),
                     Title = item.Title ?? "Untitled",
                     Summary = StripHtml(item.Description ?? string.Empty),
                     Url = item.Link!,
+                    ImageUrl = ExtractImageUrl(item),
                     PublishedAt = item.PublishingDate ?? DateTime.UtcNow,
                     FeedSourceId = feedSource.Id,
                     CreatedAt = DateTime.UtcNow
-                })
-                .ToList();
+                })];
 
             await articleRepository.UpsertRangeAsync(articles, cancellationToken);
 
@@ -64,7 +64,7 @@ public class FeedAggregatorService(
     private async Task<byte[]> FetchContentAsync(string url, CancellationToken cancellationToken)
     {
         HttpClient client = httpClientFactory.CreateClient("FeedAggregator");
-        using HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, url);
+        using HttpRequestMessage request = new(HttpMethod.Get, url);
         request.Headers.TryAddWithoutValidation("User-Agent", UserAgent);
         request.Headers.TryAddWithoutValidation("Accept", "application/rss+xml, application/atom+xml, application/xml, text/xml, */*");
 
@@ -91,5 +91,24 @@ public class FeedAggregatorService(
     private static string StripHtml(string html)
     {
         return System.Text.RegularExpressions.Regex.Replace(html, "<.*?>", string.Empty).Trim();
+    }
+
+    private static string? ExtractImageUrl(FeedItem item)
+    {
+        if (item.SpecificItem is Rss20FeedItem rss20Item
+            && rss20Item.Enclosure != null
+            && rss20Item.Enclosure.MediaType != null
+            && rss20Item.Enclosure.MediaType.StartsWith("image/", StringComparison.OrdinalIgnoreCase))
+        {
+            return rss20Item.Enclosure.Url;
+        }
+
+        System.Xml.Linq.XElement? mediaContent = item.SpecificItem?.Element?.Element(System.Xml.Linq.XName.Get("content", "http://search.yahoo.com/mrss/"));
+        if (mediaContent != null)
+        {
+            return mediaContent.Attribute("url")?.Value;
+        }
+
+        return null;
     }
 }

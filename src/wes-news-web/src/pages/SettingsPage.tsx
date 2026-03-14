@@ -7,7 +7,7 @@ export default function SettingsPage() {
   const [showPreview, setShowPreview] = useState(false)
   const [sent, setSent] = useState(false)
 
-  const { data: preview, isLoading: previewLoading } = useQuery({
+  const { data: preview, isLoading: previewLoading } = useQuery<{ html: string; articleCount: number }>({
     queryKey: ['digest-preview'],
     queryFn: digestApi.preview,
     enabled: showPreview

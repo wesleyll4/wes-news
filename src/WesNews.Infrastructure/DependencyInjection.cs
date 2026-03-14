@@ -26,6 +26,7 @@ public static class DependencyInjection
 
         services.AddScoped<INewsArticleRepository, NewsArticleRepository>();
         services.AddScoped<IFeedSourceRepository, FeedSourceRepository>();
+        services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFeedAggregatorService, FeedAggregatorService>();
         services.AddScoped<IDigestEmailService, DigestEmailService>();
         services.AddScoped<FeedSeeder>();
@@ -36,7 +37,7 @@ public static class DependencyInjection
         services.AddHttpClient("FeedAggregator", client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
-        });
+        }).AddStandardResilienceHandler();
         services.Configure<ResendClientOptions>(options =>
         {
             options.ApiToken = configuration["RESEND_APITOKEN"] ?? string.Empty;

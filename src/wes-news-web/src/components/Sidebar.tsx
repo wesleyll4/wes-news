@@ -1,7 +1,8 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Rss, Settings, BookOpen, Moon, Sun, List, X } from 'lucide-react'
+import { Rss, Settings, BookOpen, Moon, Sun, List, X, LogOut } from 'lucide-react'
 import { Category, CategoryLabels, CategoryColors } from '../types'
 import { useUiStore } from '../store/uiStore'
+import { useAuthStore } from '../store/authStore'
 
 export default function Sidebar() {
   const {
@@ -10,6 +11,7 @@ export default function Sidebar() {
     setUnreadOnly, unreadOnly,
     sidebarOpen, setSidebarOpen
   } = useUiStore()
+  const logout = useAuthStore((s) => s.logout)
   const navigate = useNavigate()
 
   const categories = Object.values(Category).filter((v): v is Category => typeof v === 'number')
@@ -115,6 +117,16 @@ export default function Sidebar() {
           <Settings size={16} />
           Settings
         </NavLink>
+        <button
+          onClick={() => {
+            logout()
+            navigate('/login')
+          }}
+          className="nav-item w-full text-left text-red-500 hover:text-red-600 dark:hover:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20"
+        >
+          <LogOut size={16} />
+          Sign Out
+        </button>
       </div>
     </div>
   )
