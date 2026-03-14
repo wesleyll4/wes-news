@@ -20,6 +20,17 @@ api.interceptors.request.use((config) => {
   return config
 })
 
+// Response interceptor for handling token expiration
+api.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      useAuthStore.getState().logout()
+    }
+    return Promise.reject(error)
+  }
+)
+
 interface LoginRequest {
   username: string
   password: string
