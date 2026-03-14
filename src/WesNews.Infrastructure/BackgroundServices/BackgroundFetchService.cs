@@ -30,7 +30,6 @@ public class BackgroundFetchService(IServiceScopeFactory scopeFactory, ILogger<B
         using IServiceScope scope = scopeFactory.CreateScope();
 
         IFeedSourceRepository feedRepository = scope.ServiceProvider.GetRequiredService<IFeedSourceRepository>();
-        IFeedAggregatorService aggregatorService = scope.ServiceProvider.GetRequiredService<IFeedAggregatorService>();
 
         IReadOnlyList<FeedSource> activeFeeds = await feedRepository.GetActiveAsync(cancellationToken);
 
@@ -47,7 +46,10 @@ public class BackgroundFetchService(IServiceScopeFactory scopeFactory, ILogger<B
             {
                 try
                 {
-                    await aggregatorService.FetchAndSaveAsync(feed, cancellationToken);
+                    using IServiceScope localScope = scopeFactory.CreateScope();
+                    IFeedAggregatorService localAggregator = localScope.ServiceProvider.GetRequiredService<IFeedAggregatorService>();
+
+                    await localAggregator.FetchAndSaveAsync(feed, cancellationToken);
                 }
                 catch (Exception ex)
                 {
