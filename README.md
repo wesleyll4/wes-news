@@ -6,6 +6,14 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 
 ---
 
+## Todo
+
+- **Sistema de login**
+- **Melhorar visual dos cards**
+- **Multi linguagem**
+
+---
+
 ## Funcionalidades
 
 - **Aggregator automático** — busca feeds RSS em background a cada 30 minutos com resiliência (Polly)
