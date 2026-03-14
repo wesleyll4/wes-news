@@ -53,7 +53,7 @@ public class FeedAggregatorService(
 
             await articleRepository.UpsertRangeAsync(articles, cancellationToken);
 
-            logger.LogInformation("Fetched {Count} articles from {FeedName}", articles.Count, feedSource.Name);
+            logger.LogDebug("Fetched {Count} articles from {FeedName}", articles.Count, feedSource.Name);
         }
         catch (Exception ex)
         {
