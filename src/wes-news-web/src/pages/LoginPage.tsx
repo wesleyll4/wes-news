@@ -7,7 +7,7 @@ import { authApi } from '../api/client'
 export default function LoginPage() {
   const navigate = useNavigate()
   const setToken = useAuthStore((s) => s.login)
-  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
@@ -18,11 +18,11 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const response = await authApi.login({ email, password })
+      const response = await authApi.login({ username, password })
       setToken(response.data.token)
       navigate('/')
     } catch (err: any) {
-      setError(err.response?.data?.message || 'Invalid email or password')
+      setError(err.response?.data?.message || 'Invalid username or password')
     } finally {
       setIsLoading(false)
     }
@@ -44,18 +44,19 @@ export default function LoginPage() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
               <div className="space-y-2">
-                <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ml-1">Email Address</label>
+                <label htmlFor="username" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ml-1">Usuário</label>
                 <div className="relative group">
                   <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-primary-500 transition-colors">
                     <Mail size={18} />
                   </div>
                   <input
-                    type="email"
+                    id="username"
+                    type="text"
                     required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
                     className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-3 pl-10 pr-4 outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
-                    placeholder="jhon@example.com"
+                    placeholder="Seu usuário"
                   />
                 </div>
               </div>

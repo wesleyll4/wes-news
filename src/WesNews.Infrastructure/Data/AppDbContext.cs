@@ -14,10 +14,13 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
         modelBuilder.Entity<User>(entity =>
         {
             entity.HasKey(u => u.Id);
+            entity.HasIndex(u => u.Username).IsUnique();
             entity.HasIndex(u => u.Email).IsUnique();
+            entity.Property(u => u.Username).IsRequired().HasMaxLength(50);
             entity.Property(u => u.Email).IsRequired().HasMaxLength(255);
             entity.Property(u => u.FullName).HasMaxLength(200);
             entity.Property(u => u.PasswordHash).IsRequired();
+            entity.Property(u => u.Role).IsRequired().HasMaxLength(20);
         });
         modelBuilder.Entity<NewsArticle>(entity =>
         {

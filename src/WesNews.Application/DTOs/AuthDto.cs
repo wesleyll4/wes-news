@@ -5,7 +5,7 @@ namespace WesNews.Application.DTOs;
 public class LoginRequest
 {
     [Required(AllowEmptyStrings = false)]
-    public string Email { get; init; } = string.Empty;
+    public string Username { get; init; } = string.Empty;
 
     [Required(AllowEmptyStrings = false)]
     public string Password { get; init; } = string.Empty;
@@ -13,6 +13,10 @@ public class LoginRequest
 
 public class RegisterRequest
 {
+    [Required(AllowEmptyStrings = false)]
+    [MinLength(3)]
+    public string Username { get; init; } = string.Empty;
+
     [Required(AllowEmptyStrings = false)]
     [EmailAddress]
     public string Email { get; init; } = string.Empty;

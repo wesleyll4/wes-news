@@ -19,7 +19,7 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
 
     public async Task<LoginResponse?> LoginAsync(LoginRequest request, CancellationToken cancellationToken = default)
     {
-        User? user = await userRepository.GetByEmailAsync(request.Email, cancellationToken);
+        User? user = await userRepository.GetByUsernameAsync(request.Username, cancellationToken);
 
         if (user == null || !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
         {
@@ -28,9 +28,9 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
 
         List<Claim> claims = new List<Claim>
         {
-            new(ClaimTypes.Name, user.Email),
+            new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
-            new(ClaimTypes.Role, "User")
+            new(ClaimTypes.Role, user.Role)
         };
 
         SymmetricSecurityKey key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwtKey));
@@ -57,7 +57,7 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
 
     public async Task<bool> RegisterAsync(RegisterRequest request, CancellationToken cancellationToken = default)
     {
-        bool exists = await userRepository.ExistsAsync(request.Email, cancellationToken);
+        bool exists = await userRepository.UsernameExistsAsync(request.Username, cancellationToken);
         if (exists)
         {
             return false;
@@ -65,9 +65,11 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
 
         User user = new User
         {
+            Username = request.Username,
             Email = request.Email,
             FullName = request.FullName,
             PasswordHash = BCrypt.Net.BCrypt.HashPassword(request.Password),
+            Role = "User",
             CreatedAt = DateTime.UtcNow
         };
 

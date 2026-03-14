@@ -5,6 +5,7 @@ import { authApi } from '../api/client'
 
 export default function RegisterPage() {
   const navigate = useNavigate()
+  const [username, setUsername] = useState('')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [fullName, setFullName] = useState('')
@@ -17,7 +18,12 @@ export default function RegisterPage() {
     setIsLoading(true)
     setError(null)
 
-    // Basic email validation
+    if (username.length < 3) {
+      setError('Username must be at least 3 characters.')
+      setIsLoading(false)
+      return
+    }
+
     if (!email.includes('@')) {
       setError('Please enter a valid email address.')
       setIsLoading(false)
@@ -31,7 +37,7 @@ export default function RegisterPage() {
     }
 
     try {
-      await authApi.register({ email, password, fullName })
+      await authApi.register({ username, email, password, fullName })
       setIsSuccess(true)
       setTimeout(() => navigate('/login'), 2000)
     } catch (err: any) {
@@ -78,6 +84,24 @@ export default function RegisterPage() {
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-5">
+              <div className="space-y-2">
+                <label htmlFor="username" className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ml-1">Usuário</label>
+                <div className="relative group">
+                  <div className="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400 group-focus-within:text-primary-500 transition-colors">
+                    <User size={18} />
+                  </div>
+                  <input
+                    id="username"
+                    type="text"
+                    required
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="w-full bg-zinc-50 dark:bg-zinc-950 border border-zinc-200 dark:border-zinc-800 rounded-2xl py-3 pl-10 pr-4 outline-none focus:border-primary-500 focus:ring-4 focus:ring-primary-500/10 transition-all text-zinc-900 dark:text-zinc-100 placeholder:text-zinc-400"
+                    placeholder="Seu usuário"
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
                 <label className="text-sm font-semibold text-zinc-700 dark:text-zinc-300 ml-1">Full Name</label>
                 <div className="relative group">

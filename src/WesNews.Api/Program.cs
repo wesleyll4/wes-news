@@ -114,11 +114,8 @@ using (IServiceScope scope = app.Services.CreateScope())
     await seeder.SeedAsync();
 }
 
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger();
-    app.UseSwaggerUI();
-}
+app.UseSwagger();
+app.UseSwaggerUI();
 
 app.UseCors();
 app.UseAuthentication();

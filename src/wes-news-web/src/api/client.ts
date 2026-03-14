@@ -21,11 +21,12 @@ api.interceptors.request.use((config) => {
 })
 
 interface LoginRequest {
-  email: string
+  username: string
   password: string
 }
 
 interface RegisterRequest {
+  username: string
   email: string
   password: string
   fullName: string

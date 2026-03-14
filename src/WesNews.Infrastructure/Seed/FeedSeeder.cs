@@ -10,6 +10,34 @@ public class FeedSeeder(AppDbContext context, ILogger<FeedSeeder> logger)
 {
     public async Task SeedAsync(CancellationToken cancellationToken = default)
     {
+        await SeedUsersAsync(cancellationToken);
+        await SeedFeedsAsync(cancellationToken);
+    }
+
+    private async Task SeedUsersAsync(CancellationToken cancellationToken)
+    {
+        bool hasAdmin = await context.Users.AnyAsync(u => u.Username == "wes_admin", cancellationToken);
+        if (!hasAdmin)
+        {
+            User admin = new User
+            {
+                Id = Guid.NewGuid(),
+                Username = "wes_admin",
+                FullName = "Wesley Admin",
+                Email = "admin@wesnews.com",
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword("%Dn42jdT@8X8Zn"),
+                Role = "Admin",
+                CreatedAt = DateTime.UtcNow
+            };
+
+            await context.Users.AddAsync(admin, cancellationToken);
+            await context.SaveChangesAsync(cancellationToken);
+            logger.LogInformation("Seeded admin user: wes_admin");
+        }
+    }
+
+    private async Task SeedFeedsAsync(CancellationToken cancellationToken)
+    {
         bool hasFeeds = await context.FeedSources.AnyAsync(cancellationToken);
 
         if (hasFeeds)

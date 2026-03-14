@@ -8,7 +8,7 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 
 ## Todo
 
-- **Sistema de login**
+- **Role-based Authorization** (Admin/User)
 - **Melhorar visual dos cards**
 - **Multi linguagem**
 
@@ -18,11 +18,12 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 
 - **Aggregator automático** — busca feeds RSS em background a cada 30 minutos com resiliência (Polly)
 - **Autenticação JWT** — Login seguro e persistente com tokens JWT
-- **Registro de Usuários** — Sistema de cadastro com senhas protegidas via BCrypt
+- **Registro de Usuários** — Cadastro com identificação única por **Username** e suporte a Roles (Admin/User)
 - **Web app** — leitura paginada, filtro por categoria, busca por texto, marcar como lido
 - **Digest diário por email** — envia um resumo com os top artigos não lidos de cada categoria (padrão: 7h da manhã)
+- **Admin CRUD** — Interface administrativa para gerenciamento completo da tabela de usuários (acesso restrito)
 - **Gerenciamento de feeds** — adicione, ative/desative ou remova fontes RSS pela interface
-- **API Documentation** — Swagger configurado com suporte a autorização JWT
+- **API Documentation** — Swagger habilitado em todos os ambientes com suporte a autorização JWT
 - **Docker-ready** — sobe tudo com um único `docker compose up`
 
 ---
