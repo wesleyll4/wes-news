@@ -45,6 +45,7 @@ interface RegisterRequest {
 
 interface LoginResponse {
   token: string
+  role: string
   expiresAt: string
 }
 
@@ -58,7 +59,10 @@ interface NewsQuery {
 
 export const authApi = {
   login: (data: LoginRequest) =>
-    api.post<LoginResponse>('auth/login', data),
+    api.post<LoginResponse>('auth/login', data).then(res => {
+      useAuthStore.getState().login(res.data.token, res.data.role)
+      return res
+    }),
   register: (data: RegisterRequest) =>
     api.post('auth/register', data)
 }

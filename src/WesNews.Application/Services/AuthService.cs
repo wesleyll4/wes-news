@@ -51,6 +51,7 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
         return new LoginResponse
         {
             Token = tokenString,
+            Role = user.Role,
             ExpiresAt = expiresAt
         };
     }

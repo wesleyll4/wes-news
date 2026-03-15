@@ -1,13 +1,11 @@
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { LogIn, User, Lock, Loader2, Compass } from 'lucide-react'
-import { useAuthStore } from '../store/authStore'
 import { authApi } from '../api/client'
 import { motion } from 'framer-motion'
 
 export default function LoginPage() {
   const navigate = useNavigate()
-  const setToken = useAuthStore((s) => s.login)
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
@@ -19,8 +17,7 @@ export default function LoginPage() {
     setError(null)
 
     try {
-      const response = await authApi.login({ username, password })
-      setToken(response.data.token)
+      await authApi.login({ username, password })
       navigate('/')
     } catch (err: any) {
       setError(err.response?.data?.message || 'Invalid username or password')

@@ -77,7 +77,7 @@ export default function FeedPage() {
           layout
           className="flex-1 overflow-y-auto custom-scrollbar pb-10"
         >
-          <AnimatePresence mode="popLayout">
+          <AnimatePresence>
             {isLoading ? (
               <motion.div 
                 initial={{ opacity: 0 }}
@@ -102,8 +102,11 @@ export default function FeedPage() {
               </motion.div>
             ) : (
               <motion.div 
+                key={`feed-grid-${selectedCategory}-${unreadOnly}`}
                 variants={{
+                  hidden: { opacity: 0 },
                   show: {
+                    opacity: 1,
                     transition: {
                       staggerChildren: 0.05
                     }

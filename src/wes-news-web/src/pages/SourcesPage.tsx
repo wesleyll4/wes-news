@@ -3,7 +3,9 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { feedsApi } from '../api/client'
 import { Category, CategoryLabels, CategoryColors } from '../types'
 import type { CreateFeedSourceRequest } from '../types'
-import { Trash2, Plus, ToggleLeft, ToggleRight, Loader2, Rss } from 'lucide-react'
+import { Trash2, Plus, ToggleLeft, ToggleRight, Loader2, Rss, ShieldAlert } from 'lucide-react'
+import { useAuthStore } from '../store/authStore'
+import { motion } from 'framer-motion'
 
 export default function SourcesPage() {
   const queryClient = useQueryClient()
@@ -16,7 +18,11 @@ export default function SourcesPage() {
     queryFn: feedsApi.getAll
   })
 
+  const isAdmin = useAuthStore((s) => s.role === 'Admin')
+  const tooltip = !isAdmin ? 'Apenas administradores podem gerenciar feeds' : ''
+
   const createMutation = useMutation({
+    // ... (lines 19-48 skipped for brevity, but I need to replace from line 57)
     mutationFn: feedsApi.create,
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['feeds'] })
@@ -47,6 +53,18 @@ export default function SourcesPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 py-8">
+      {!isAdmin && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-6 p-4 rounded-2xl bg-amber-500/10 border border-amber-500/20 flex items-center gap-3 text-amber-600 dark:text-amber-400"
+        >
+          <ShieldAlert size={18} className="shrink-0" />
+          <p className="text-xs font-bold uppercase tracking-wider">
+            Apenas administradores podem gerenciar fontes de feed.
+          </p>
+        </motion.div>
+      )}
       <div className="flex items-center justify-between mb-8">
         <div>
           <h1 className="font-display font-bold text-2xl tracking-tight">Sources</h1>
@@ -54,7 +72,12 @@ export default function SourcesPage() {
             {feeds?.length ?? 0} RSS feeds configured
           </p>
         </div>
-        <button onClick={() => { setShowForm(!showForm); setError('') }} className="btn-primary">
+        <button
+          onClick={() => isAdmin && setShowForm(!showForm)}
+          className={`btn-primary ${!isAdmin ? 'opacity-50 cursor-not-allowed' : ''}`}
+          title={tooltip}
+          disabled={!isAdmin}
+        >
           <Plus size={15} />
           Add Source
         </button>
@@ -137,17 +160,20 @@ export default function SourcesPage() {
                       </div>
                       <div className="flex items-center gap-1 shrink-0 ml-3">
                         <button
-                          onClick={() => toggleMutation.mutate({ id: feed.id, isActive: !feed.isActive })}
-                          className="p-2 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors"
-                          title={feed.isActive ? 'Disable' : 'Enable'}
+                          onClick={() => isAdmin && toggleMutation.mutate({ id: feed.id, isActive: !feed.isActive })}
+                          className={`p-2 rounded-lg text-zinc-400 transition-colors ${!isAdmin ? 'opacity-40 cursor-not-allowed' : 'hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
+                          title={tooltip || (feed.isActive ? 'Disable' : 'Enable')}
+                          disabled={!isAdmin}
                         >
                           {feed.isActive
-                            ? <ToggleRight size={18} className="text-zinc-900 dark:text-zinc-100" />
+                            ? <ToggleRight size={18} className={isAdmin ? 'text-zinc-900 dark:text-zinc-100' : ''} />
                             : <ToggleLeft size={18} />}
                         </button>
                         <button
-                          onClick={() => deleteMutation.mutate(feed.id)}
-                          className="p-2 rounded-lg text-zinc-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40 transition-colors"
+                          onClick={() => isAdmin && deleteMutation.mutate(feed.id)}
+                          className={`p-2 rounded-lg text-zinc-400 transition-colors ${!isAdmin ? 'opacity-40 cursor-not-allowed' : 'hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40'}`}
+                          title={tooltip || 'Delete'}
+                          disabled={!isAdmin}
                         >
                           <Trash2 size={14} />
                         </button>

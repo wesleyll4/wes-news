@@ -28,8 +28,11 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
         hidden: { opacity: 0, y: 20, scale: 0.98 },
         show: { opacity: 1, y: 0, scale: 1 }
       }}
-      transition={{ type: 'spring', damping: 25, stiffness: 120 }}
-      whileHover={{ y: -6, transition: { duration: 0.3 } }}
+      initial="hidden"
+      animate="show"
+      exit="hidden"
+      transition={{ type: 'spring', damping: 25, stiffness: 180 }}
+      whileHover={{ y: -1, transition: { duration: 0.3 } }}
       layout
       className="px-6 py-3"
     >
@@ -37,8 +40,8 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
         onClick={onClick}
         className={`
           w-full text-left group relative p-6 rounded-[2rem] transition-all duration-500
-          ${isSelected 
-            ? 'glass-card ring-2 ring-indigo-500/40 shadow-2xl scale-[1.01]' 
+          ${isSelected
+            ? 'glass-card ring-2 ring-indigo-500/40 shadow-2xl scale-[1.01]'
             : 'glass-card hover:bg-white/60 dark:hover:bg-white/[0.12]'
           }
         `}
@@ -76,7 +79,7 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
                   {article.feedSourceName}
                 </span>
               </div>
-              
+
               <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                 <a
                   href={article.url}
@@ -97,7 +100,7 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
 
         {/* Selected Accent */}
         {isSelected && (
-          <motion.div 
+          <motion.div
             layoutId="active-pill"
             className="absolute left-[-1px] top-1/3 bottom-1/3 w-1.5 bg-indigo-500 rounded-r-full shadow-[0_0_20px_rgba(99,102,241,0.6)]"
           />
