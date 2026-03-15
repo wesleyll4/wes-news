@@ -1,15 +1,15 @@
-# WesNews
+# WesNews: Core Feed
 
-Agregador pessoal de notícias tech — busca automaticamente artigos de RSS feeds curados, exibe tudo em uma web app moderna e envia um digest diário por email.
+Agregador pessoal de notícias tech — busca automaticamente artigos de RSS feeds curados, exibe tudo em uma interface premium **Aero** com glassmorphism e envia um digest diário por email.
 
-> Feito para desenvolvedores que querem se manter atualizados no mundo .NET, IA, arquitetura e DevOps sem depender de algoritmos de redes sociais.
+> Feito para desenvolvedores que querem se manter atualizados no mundo .NET, IA, arquitetura e DevOps com uma experiência de leitura fluida e moderna.
 
 ---
 
 ## Todo
 
 - **Role-based Authorization** (Admin/User)
-- **Melhorar visual dos cards**
+- [x] **Redesign Aero UI** (Glassmorphism & Animations)
 - **Multi linguagem**
 
 ---
@@ -37,7 +37,7 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 | Resiliência | Microsoft.Extensions.Http.Resilience (Polly v8) |
 | Scheduler | Quartz.NET |
 | Email | Resend API |
-| Frontend | React 18, Vite, TypeScript, Tailwind CSS, Lucide Icons |
+| Frontend | React 18, Vite, TypeScript, Tailwind CSS, Framer Motion, Lucide Icons |
 | State / Cache | TanStack Query, Zustand (Persist) |
 | Testes | xUnit, NSubstitute, FluentAssertions |
 
@@ -86,7 +86,7 @@ npm run dev
 ## TODO / Roadmap 🚀
 
 - [ ] **Multi-user Feeds**: Permitir que cada usuário customize sua própria lista de fontes RSS partindo de um conjunto padrão.
-- [ ] **UI Refinement**: Melhorar o visual da lista de notícias para uma experiência de leitura mais premium e fluida.
+- [x] **UI Refinement**: Implementação do sistema de design **Aero** com glassmorphism, transições fluidas e modo escuro nativo.
 - [ ] **Social Sharing**: Opção para compartilhar artigos interessantes diretamente.
 - [ ] **Push Notifications**: Alertas para notícias críticas de fontes específicas.
 

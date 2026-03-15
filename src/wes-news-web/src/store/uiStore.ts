@@ -21,7 +21,7 @@ export const useUiStore = create<UiState>((set) => ({
   searchTerm: '',
   unreadOnly: false,
   selectedArticleId: undefined,
-  isDarkMode: localStorage.getItem('darkMode') === 'true',
+  isDarkMode: localStorage.getItem('darkMode') !== 'false',
   sidebarOpen: false,
 
   setSelectedCategory: (category) => set({ selectedCategory: category, selectedArticleId: undefined }),

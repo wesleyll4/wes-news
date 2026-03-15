@@ -1,6 +1,7 @@
 import type { NewsArticleDto } from '../types'
 import { CategoryLabels, CategoryColors } from '../types'
-import { ExternalLink } from 'lucide-react'
+import { ExternalLink, Clock, ChevronRight } from 'lucide-react'
+import { motion } from 'framer-motion'
 
 interface ArticleCardProps {
   article: NewsArticleDto
@@ -22,46 +23,70 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
   })()
 
   return (
-    <button
-      onClick={onClick}
-      className={`
-        w-full text-left group px-4 py-4 border-b border-zinc-100 dark:border-zinc-800/80
-        transition-colors hover:bg-zinc-50 dark:hover:bg-zinc-900
-        ${isSelected ? 'bg-zinc-50 dark:bg-zinc-900 border-l-2 border-l-zinc-900 dark:border-l-zinc-100' : ''}
-      `}
+    <motion.div
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      layout
+      className="px-4 py-2"
     >
-      <div className="flex items-start gap-3">
-        <div className="flex-1 min-w-0 space-y-1.5">
-          <div className="flex items-center gap-2">
-            <span className={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold uppercase tracking-wider ${colors.bg} ${colors.text}`}>
-              {CategoryLabels[article.category]}
-            </span>
-            {!article.isRead && (
-              <span className="w-1.5 h-1.5 rounded-full bg-zinc-900 dark:bg-zinc-100 shrink-0" />
-            )}
-          </div>
+      <button
+        onClick={onClick}
+        className={`
+          w-full text-left group relative p-5 rounded-2xl transition-colors duration-300
+          ${isSelected 
+            ? 'glass-card ring-2 ring-indigo-500/20 dark:ring-indigo-400/20' 
+            : 'hover:bg-white/50 dark:hover:bg-zinc-900/40 border border-transparent'
+          }
+        `}
+      >
+        <div className="flex items-start gap-4">
+          <div className="flex-1 min-w-0 space-y-3">
+            <div className="flex items-center gap-2.5">
+              <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${colors.bg} ${colors.text} bg-opacity-10 backdrop-blur-sm border border-current border-opacity-10`}>
+                {CategoryLabels[article.category]}
+              </span>
+              <div className="flex items-center gap-1.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
+                <Clock size={12} className="opacity-70" />
+                <span className="shrink-0">{timeAgo}</span>
+              </div>
+              {!article.isRead && (
+                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shrink-0" />
+              )}
+            </div>
 
-          <p className={`text-[13px] leading-snug line-clamp-2 ${!article.isRead ? 'font-semibold text-zinc-900 dark:text-zinc-100' : 'font-normal text-zinc-500 dark:text-zinc-400'}`}>
-            {article.title}
-          </p>
+            <p className={`text-sm leading-relaxed line-clamp-2 transition-colors ${!article.isRead ? 'font-bold text-zinc-900 dark:text-zinc-100' : 'font-medium text-zinc-500 dark:text-zinc-400'}`}>
+              {article.title}
+            </p>
 
-          <div className="flex items-center gap-1.5 text-[11px] text-zinc-400 dark:text-zinc-500">
-            <span className="truncate max-w-[120px]">{article.feedSourceName}</span>
-            <span>·</span>
-            <span className="shrink-0">{timeAgo}</span>
+            <div className="flex items-center justify-between group/footer">
+              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-600 tracking-wide uppercase">
+                {article.feedSourceName}
+              </span>
+              
+              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
+                <a
+                  href={article.url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
+                  className="p-1.5 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                >
+                  <ExternalLink size={14} />
+                </a>
+                <ChevronRight size={14} className="text-zinc-300" />
+              </div>
+            </div>
           </div>
         </div>
 
-        <a
-          href={article.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          onClick={(e) => e.stopPropagation()}
-          className="shrink-0 mt-0.5 p-1.5 rounded-md text-zinc-300 dark:text-zinc-600 hover:text-zinc-700 dark:hover:text-zinc-300 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors opacity-0 group-hover:opacity-100"
-        >
-          <ExternalLink size={13} />
-        </a>
-      </div>
-    </button>
+        {/* Selected Accent */}
+        {isSelected && (
+          <motion.div 
+            layoutId="active-pill"
+            className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-500 rounded-r-full shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+          />
+        )}
+      </button>
+    </motion.div>
   )
 }

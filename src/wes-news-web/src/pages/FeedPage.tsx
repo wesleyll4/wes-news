@@ -4,9 +4,10 @@ import { newsApi } from '../api/client'
 import ArticleCard from '../components/ArticleCard'
 import ArticleReader from '../components/ArticleReader'
 import SearchBar from '../components/SearchBar'
-import { Loader2, RefreshCw, Inbox } from 'lucide-react'
+import { Loader2, RefreshCw, Inbox, Sparkles } from 'lucide-react'
 import type { NewsArticleDto } from '../types'
 import { CategoryLabels } from '../types'
+import { motion, AnimatePresence } from 'framer-motion'
 
 export default function FeedPage() {
   const { selectedCategory, searchTerm, unreadOnly, selectedArticleId, setSelectedArticleId } = useUiStore()
@@ -43,57 +44,107 @@ export default function FeedPage() {
     : 'All News'
 
   return (
-    <div className="flex h-full overflow-hidden">
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-        <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center gap-3 shrink-0">
+    <div className="flex h-full overflow-hidden bg-transparent">
+      <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
+        <header className="px-6 py-4 glass border-b z-20 flex items-center gap-4 shrink-0">
           <div className="flex-1">
             <SearchBar />
           </div>
           <button
             onClick={() => refetch()}
-            className={`p-2 rounded-lg text-zinc-400 hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-colors ${isFetching ? 'animate-spin' : ''}`}
+            className={`p-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all ${isFetching ? 'animate-spin text-indigo-500' : ''}`}
+            title="Refresh"
           >
-            <RefreshCw size={15} />
+            <RefreshCw size={18} />
           </button>
-        </div>
+        </header>
 
-        <div className="px-4 py-3 border-b border-zinc-100 dark:border-zinc-800 flex items-center justify-between shrink-0">
-          <h1 className="font-display font-bold text-lg tracking-tight">{pageTitle}</h1>
+        <div className="px-6 py-5 flex items-center justify-between shrink-0 z-10">
+          <div className="flex items-center gap-2">
+            <Sparkles size={18} className="text-indigo-500" />
+            <h1 className="font-display font-bold text-xl tracking-tight bg-gradient-to-br from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
+              {pageTitle}
+            </h1>
+          </div>
           {data && (
-            <span className="text-xs text-zinc-400 tabular-nums">{data.totalCount} articles</span>
+            <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-600 tracking-wider uppercase tabular-nums">
+              {data.totalCount} Articles
+            </span>
           )}
         </div>
 
-        <div className="flex-1 overflow-y-auto">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-400">
-              <Loader2 size={22} className="animate-spin" />
-              <span className="text-sm">Loading articles...</span>
-            </div>
-          ) : data?.items.length === 0 ? (
-            <div className="flex flex-col items-center justify-center h-48 gap-3 text-zinc-400">
-              <Inbox size={28} />
-              <span className="text-sm">No articles found</span>
-            </div>
-          ) : (
-            data?.items.map((article) => (
-              <ArticleCard
-                key={article.id}
-                article={article}
-                isSelected={article.id === selectedArticleId}
-                onClick={() => handleArticleClick(article)}
-              />
-            ))
-          )}
-        </div>
+        <motion.div 
+          layout
+          className="flex-1 overflow-y-auto custom-scrollbar pb-10"
+        >
+          <AnimatePresence mode="popLayout">
+            {isLoading ? (
+              <motion.div 
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
+              >
+                <div className="relative">
+                  <div className="absolute inset-0 bg-indigo-500 blur-xl opacity-20 animate-pulse" />
+                  <Loader2 size={32} className="animate-spin text-indigo-500 relative" />
+                </div>
+                <span className="text-sm font-medium tracking-wide">Synthesizing feed...</span>
+              </motion.div>
+            ) : data?.items.length === 0 ? (
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.9 }}
+                animate={{ opacity: 1, scale: 1 }}
+                className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
+              >
+                <Inbox size={40} className="opacity-20" />
+                <span className="text-sm font-medium">No articles in this frequency</span>
+              </motion.div>
+            ) : (
+              <div className="grid grid-cols-1 gap-1">
+                {data?.items.map((article) => (
+                  <ArticleCard
+                    key={article.id}
+                    article={article}
+                    isSelected={article.id === selectedArticleId}
+                    onClick={() => handleArticleClick(article)}
+                  />
+                ))}
+              </div>
+            )}
+          </AnimatePresence>
+        </motion.div>
       </div>
 
-      {selectedArticle && (
-        <ArticleReader
-          article={selectedArticle}
-          onClose={() => setSelectedArticleId(undefined)}
-        />
-      )}
+      <AnimatePresence>
+        {selectedArticle && (
+          <motion.div
+            initial={{ width: 0, opacity: 0 }}
+            animate={{ width: 'auto', opacity: 1 }}
+            exit={{ width: 0, opacity: 0 }}
+            transition={{ type: 'spring', damping: 30, stiffness: 300 }}
+            className="hidden md:block overflow-hidden relative"
+          >
+            <div className="w-[420px] h-full">
+              <ArticleReader
+                article={selectedArticle}
+                onClose={() => setSelectedArticleId(undefined)}
+              />
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {selectedArticle && (
+          <div className="md:hidden">
+            <ArticleReader
+              article={selectedArticle}
+              onClose={() => setSelectedArticleId(undefined)}
+            />
+          </div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

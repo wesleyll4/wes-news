@@ -3,51 +3,87 @@
 @tailwind utilities;
 
 @layer base {
+  :root {
+    --accent: 79 70 229; /* indigo-600 */
+    --accent-foreground: 255 255 255;
+  }
+
+  .dark {
+    --accent: 99 102 241; /* indigo-500 */
+  }
+
   * {
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    @apply border-zinc-200 dark:border-zinc-800;
   }
 
   body {
     margin: 0;
     font-family: 'Inter', system-ui, sans-serif;
-    @apply bg-white text-zinc-900 dark:bg-zinc-950 dark:text-zinc-100;
+    @apply bg-zinc-50 text-zinc-900 dark:bg-[#050505] dark:text-zinc-100;
   }
 
-  ::-webkit-scrollbar { width: 4px; height: 4px; }
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
   ::-webkit-scrollbar-track { @apply bg-transparent; }
-  ::-webkit-scrollbar-thumb { @apply bg-zinc-200 dark:bg-zinc-700 rounded-full; }
+  ::-webkit-scrollbar-thumb { @apply bg-zinc-200 dark:bg-zinc-800 rounded-full hover:bg-zinc-300 dark:hover:bg-zinc-700 transition-colors; }
 }
 
 @layer components {
+  .glass {
+    @apply bg-white/70 dark:bg-zinc-900/60 backdrop-blur-xl border border-white/20 dark:border-zinc-800/50;
+  }
+
+  .glass-card {
+    @apply bg-white/40 dark:bg-zinc-900/40 backdrop-blur-md border border-white/20 dark:border-zinc-800/50 
+           shadow-[0_8px_32px_0_rgba(0,0,0,0.05)] dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)];
+  }
+
   .nav-item {
-    @apply flex items-center gap-2.5 px-3 py-2 rounded-lg text-sm font-medium transition-colors
+    @apply flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-medium transition-all duration-200
            text-zinc-500 dark:text-zinc-400
            hover:text-zinc-900 dark:hover:text-zinc-100
-           hover:bg-zinc-100 dark:hover:bg-zinc-800/60;
+           hover:bg-zinc-200/50 dark:hover:bg-zinc-800/50;
   }
 
   .nav-item-active {
-    @apply text-zinc-900 dark:text-zinc-100 bg-zinc-100 dark:bg-zinc-800/60;
+    @apply text-indigo-600 dark:text-indigo-400 bg-indigo-50 dark:bg-indigo-500/10 shadow-sm shadow-indigo-500/10;
   }
 
   .btn-primary {
-    @apply inline-flex items-center gap-2 px-4 py-2 bg-zinc-900 dark:bg-white
-           text-white dark:text-zinc-900 text-sm font-semibold rounded-lg
-           hover:bg-zinc-700 dark:hover:bg-zinc-200 transition-colors disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-indigo-600 dark:bg-indigo-500
+           text-white text-sm font-semibold rounded-xl shadow-lg shadow-indigo-500/25
+           hover:bg-indigo-700 dark:hover:bg-indigo-400 hover:-translate-y-0.5
+           active:translate-y-0 transition-all duration-200 disabled:opacity-40;
   }
 
   .btn-ghost {
-    @apply inline-flex items-center gap-2 px-4 py-2 border border-zinc-200 dark:border-zinc-700
-           text-zinc-700 dark:text-zinc-300 text-sm font-medium rounded-lg
-           hover:bg-zinc-50 dark:hover:bg-zinc-800 transition-colors disabled:opacity-40;
+    @apply inline-flex items-center justify-center gap-2 px-5 py-2.5 
+           bg-white/50 dark:bg-zinc-900/50 backdrop-blur-sm
+           border border-zinc-200 dark:border-zinc-800
+           text-zinc-700 dark:text-zinc-300 text-sm font-medium rounded-xl
+           hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all duration-200 disabled:opacity-40;
   }
 
   .input-field {
-    @apply w-full px-3 py-2 text-sm border border-zinc-200 dark:border-zinc-700
-           rounded-lg bg-transparent outline-none
-           focus:border-zinc-400 dark:focus:border-zinc-500
+    @apply w-full px-4 py-2.5 text-sm border border-zinc-200 dark:border-zinc-800
+           rounded-xl bg-white/50 dark:bg-zinc-900/30 backdrop-blur-sm outline-none
+           focus:border-indigo-400 dark:focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/5
            placeholder:text-zinc-400 dark:placeholder:text-zinc-600
-           transition-colors;
+           transition-all duration-200;
   }
 }
+
+@keyframes blob {
+  0% { transform: translate(0px, 0px) scale(1); }
+  33% { transform: translate(30px, -50px) scale(1.1); }
+  66% { transform: translate(-20px, 20px) scale(0.9); }
+  100% { transform: translate(0px, 0px) scale(1); }
+}
+
+.animate-blob {
+  animation: blob 7s infinite;
+}
+
+.animation-delay-2000 { animation-delay: 2s; }
+.animation-delay-4000 { animation-delay: 4s; }
