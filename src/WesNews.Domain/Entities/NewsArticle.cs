@@ -9,6 +9,8 @@ public class NewsArticle
     public string? ImageUrl { get; set; }
     public DateTime PublishedAt { get; set; }
     public bool IsRead { get; set; }
+    public bool IsFeatured { get; set; }
+    public DateTime? FeaturedAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public Guid FeedSourceId { get; set; }
     public FeedSource FeedSource { get; set; } = null!;

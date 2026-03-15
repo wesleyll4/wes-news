@@ -4,7 +4,7 @@ import { newsApi } from '../api/client'
 import ArticleCard from '../components/ArticleCard'
 import ArticleReader from '../components/ArticleReader'
 import SearchBar from '../components/SearchBar'
-import { Loader2, RefreshCw, Inbox, Sparkles } from 'lucide-react'
+import { Loader2, RefreshCw, Inbox, Sparkles, Brain } from 'lucide-react'
 import type { NewsArticleDto } from '../types'
 import { CategoryLabels } from '../types'
 import { motion, AnimatePresence } from 'framer-motion'
@@ -36,6 +36,9 @@ export default function FeedPage() {
   }
 
   const selectedArticle = data?.items.find((a) => a.id === selectedArticleId)
+
+  const featuredArticles = data?.items.filter((a) => a.isFeatured) ?? []
+  const regularArticles = data?.items.filter((a) => !a.isFeatured) ?? []
 
   const pageTitle = selectedCategory
     ? CategoryLabels[selectedCategory]
@@ -73,13 +76,13 @@ export default function FeedPage() {
           )}
         </div>
 
-        <motion.div 
+        <motion.div
           layout
           className="flex-1 overflow-y-auto custom-scrollbar pb-10"
         >
           <AnimatePresence>
             {isLoading ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
@@ -92,7 +95,7 @@ export default function FeedPage() {
                 <span className="text-sm font-display font-medium tracking-widest uppercase opacity-60">Synthesizing feed...</span>
               </motion.div>
             ) : data?.items.length === 0 ? (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.9 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
@@ -101,22 +104,52 @@ export default function FeedPage() {
                 <span className="text-sm font-medium">No articles in this frequency</span>
               </motion.div>
             ) : (
-              <motion.div 
+              <motion.div
                 key={`feed-grid-${selectedCategory}-${unreadOnly}`}
                 variants={{
                   hidden: { opacity: 0 },
-                  show: {
-                    opacity: 1,
-                    transition: {
-                      staggerChildren: 0.05
-                    }
-                  }
+                  show: { opacity: 1, transition: { staggerChildren: 0.05 } }
                 }}
                 initial="hidden"
                 animate="show"
                 className="grid grid-cols-1 gap-2 px-2"
               >
-                {data?.items.map((article) => (
+                {featuredArticles.length > 0 && (
+                  <motion.div
+                    variants={{ hidden: { opacity: 0, y: -8 }, show: { opacity: 1, y: 0 } }}
+                    className="mb-1"
+                  >
+                    <div className="flex items-center gap-2 px-2 py-3">
+                      <Brain size={14} className="text-indigo-500 shrink-0" />
+                      <span className="text-[11px] font-bold uppercase tracking-widest text-indigo-500">
+                        AI Picks
+                      </span>
+                      <div className="flex-1 h-px bg-indigo-200 dark:bg-indigo-900" />
+                      <span className="text-[10px] text-zinc-400">{featuredArticles.length} selected by Gemini</span>
+                    </div>
+                    <div className="grid grid-cols-1 gap-2">
+                      {featuredArticles.map((article) => (
+                        <ArticleCard
+                          key={article.id}
+                          article={article}
+                          isSelected={article.id === selectedArticleId}
+                          onClick={() => handleArticleClick(article)}
+                        />
+                      ))}
+                    </div>
+
+                    {regularArticles.length > 0 && (
+                      <div className="flex items-center gap-2 px-2 py-3 mt-2">
+                        <span className="text-[11px] font-bold uppercase tracking-widest text-zinc-400 dark:text-zinc-600">
+                          All Articles
+                        </span>
+                        <div className="flex-1 h-px bg-zinc-100 dark:bg-zinc-800" />
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+
+                {regularArticles.map((article) => (
                   <ArticleCard
                     key={article.id}
                     article={article}

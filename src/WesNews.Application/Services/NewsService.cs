@@ -39,6 +39,8 @@ public class NewsService(INewsArticleRepository repository)
             ImageUrl = article.ImageUrl,
             PublishedAt = article.PublishedAt,
             IsRead = article.IsRead,
+            IsFeatured = article.IsFeatured,
+            FeaturedAt = article.FeaturedAt,
             Category = article.FeedSource.Category,
             FeedSourceName = article.FeedSource.Name
         };

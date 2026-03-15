@@ -29,15 +29,21 @@ public static class DependencyInjection
         services.AddScoped<IUserRepository, UserRepository>();
         services.AddScoped<IFeedAggregatorService, FeedAggregatorService>();
         services.AddScoped<IDigestEmailService, DigestEmailService>();
+        services.AddScoped<IAiCuratorService, GeminiCuratorService>();
         services.AddScoped<FeedSeeder>();
 
         services.Configure<DigestEmailOptions>(configuration.GetSection("DigestEmail"));
+        services.Configure<GeminiOptions>(configuration.GetSection("Gemini"));
 
         services.AddHttpClient();
         services.AddHttpClient("FeedAggregator", client =>
         {
             client.Timeout = TimeSpan.FromSeconds(30);
         }).AddStandardResilienceHandler();
+        services.AddHttpClient("Gemini", client =>
+        {
+            client.Timeout = TimeSpan.FromSeconds(60);
+        });
         services.Configure<ResendClientOptions>(options =>
         {
             options.ApiToken = configuration["RESEND_APITOKEN"] ?? string.Empty;
@@ -46,16 +52,28 @@ public static class DependencyInjection
 
         services.AddHostedService<BackgroundFetchService>();
 
-        string cronExpression = configuration["DigestEmail:CronExpression"] ?? "0 0 7 * * ?";
+        GeminiOptions geminiOptions = configuration.GetSection("Gemini").Get<GeminiOptions>() ?? new GeminiOptions();
+        string digestCron = configuration["DigestEmail:CronExpression"] ?? "0 0 7 * * ?";
 
         services.AddQuartz(q =>
         {
-            JobKey jobKey = new JobKey("DigestSchedulerJob");
-            q.AddJob<DigestSchedulerJob>(opts => opts.WithIdentity(jobKey));
+            JobKey digestJobKey = new JobKey("DigestSchedulerJob");
+            q.AddJob<DigestSchedulerJob>(opts => opts.WithIdentity(digestJobKey));
             q.AddTrigger(opts => opts
-                .ForJob(jobKey)
+                .ForJob(digestJobKey)
                 .WithIdentity("DigestSchedulerJob-trigger")
-                .WithCronSchedule(cronExpression));
+                .WithCronSchedule(digestCron));
+
+            JobKey curatorJobKey = new JobKey("CuratorSchedulerJob");
+            q.AddJob<CuratorSchedulerJob>(opts => opts.WithIdentity(curatorJobKey));
+            q.AddTrigger(opts => opts
+                .ForJob(curatorJobKey)
+                .WithIdentity("CuratorSchedulerJob-morning")
+                .WithCronSchedule(geminiOptions.MorningCron));
+            q.AddTrigger(opts => opts
+                .ForJob(curatorJobKey)
+                .WithIdentity("CuratorSchedulerJob-afternoon")
+                .WithCronSchedule(geminiOptions.AfternoonCron));
         });
 
         services.AddQuartzHostedService(options => options.WaitForJobsToComplete = true);

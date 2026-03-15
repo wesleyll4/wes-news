@@ -33,6 +33,8 @@ export interface NewsArticleDto {
   imageUrl?: string
   publishedAt: string
   isRead: boolean
+  isFeatured: boolean
+  featuredAt?: string
   category: Category
   feedSourceName: string
 }

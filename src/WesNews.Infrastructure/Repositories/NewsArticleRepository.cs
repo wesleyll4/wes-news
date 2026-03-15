@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using WesNews.Application.DTOs;
 using WesNews.Application.Interfaces.Repositories;
 using WesNews.Domain.Entities;
+using WesNews.Domain.Enums;
 using WesNews.Infrastructure.Data;
 
 namespace WesNews.Infrastructure.Repositories;
@@ -35,7 +36,8 @@ public class NewsArticleRepository(AppDbContext context) : INewsArticleRepositor
         int totalCount = await queryable.CountAsync(cancellationToken);
 
         List<NewsArticle> items = await queryable
-            .OrderByDescending(a => a.PublishedAt)
+            .OrderByDescending(a => a.IsFeatured)
+            .ThenByDescending(a => a.PublishedAt)
             .Skip((query.Page - 1) * query.PageSize)
             .Take(query.PageSize)
             .ToListAsync(cancellationToken);
@@ -82,5 +84,47 @@ public class NewsArticleRepository(AppDbContext context) : INewsArticleRepositor
         }
 
         await context.SaveChangesAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<NewsArticle>> GetRecentByCategoryAsync(
+        Category category,
+        int hours,
+        int limit,
+        CancellationToken cancellationToken = default)
+    {
+        DateTime since = DateTime.UtcNow.AddHours(-hours);
+
+        List<NewsArticle> items = await context.NewsArticles
+            .Include(a => a.FeedSource)
+            .AsNoTracking()
+            .Where(a => a.FeedSource.Category == category && a.PublishedAt >= since)
+            .OrderByDescending(a => a.PublishedAt)
+            .Take(limit)
+            .ToListAsync(cancellationToken);
+
+        return items.AsReadOnly();
+    }
+
+    public async Task ClearFeaturedByCategoryAsync(Category category, CancellationToken cancellationToken = default)
+    {
+        await context.NewsArticles
+            .Where(a => a.IsFeatured && a.FeedSource.Category == category)
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(a => a.IsFeatured, false)
+                      .SetProperty(a => a.FeaturedAt, (DateTime?)null),
+                cancellationToken);
+    }
+
+    public async Task SetFeaturedAsync(IEnumerable<Guid> articleIds, CancellationToken cancellationToken = default)
+    {
+        List<Guid> ids = articleIds.ToList();
+        DateTime now = DateTime.UtcNow;
+
+        await context.NewsArticles
+            .Where(a => ids.Contains(a.Id))
+            .ExecuteUpdateAsync(
+                s => s.SetProperty(a => a.IsFeatured, true)
+                      .SetProperty(a => a.FeaturedAt, now),
+                cancellationToken);
     }
 }
