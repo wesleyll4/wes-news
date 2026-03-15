@@ -1,5 +1,6 @@
 using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using WesNews.Application;
 using WesNews.Infrastructure;
@@ -108,7 +109,7 @@ WebApplication app = builder.Build();
 using (IServiceScope scope = app.Services.CreateScope())
 {
     AppDbContext context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-    await context.Database.EnsureCreatedAsync();
+    await context.Database.MigrateAsync();
 
     FeedSeeder seeder = scope.ServiceProvider.GetRequiredService<FeedSeeder>();
     await seeder.SeedAsync();
