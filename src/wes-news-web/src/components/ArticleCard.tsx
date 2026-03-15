@@ -24,56 +24,72 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
+      variants={{
+        hidden: { opacity: 0, y: 20, scale: 0.98 },
+        show: { opacity: 1, y: 0, scale: 1 }
+      }}
+      transition={{ type: 'spring', damping: 25, stiffness: 120 }}
+      whileHover={{ y: -6, transition: { duration: 0.3 } }}
       layout
-      className="px-4 py-2"
+      className="px-6 py-3"
     >
       <button
         onClick={onClick}
         className={`
-          w-full text-left group relative p-5 rounded-2xl transition-colors duration-300
+          w-full text-left group relative p-6 rounded-[2rem] transition-all duration-500
           ${isSelected 
-            ? 'glass-card ring-2 ring-indigo-500/20 dark:ring-indigo-400/20' 
-            : 'hover:bg-white/50 dark:hover:bg-zinc-900/40 border border-transparent'
+            ? 'glass-card ring-2 ring-indigo-500/40 shadow-2xl scale-[1.01]' 
+            : 'glass-card hover:bg-white/60 dark:hover:bg-white/[0.12]'
           }
         `}
       >
-        <div className="flex items-start gap-4">
-          <div className="flex-1 min-w-0 space-y-3">
-            <div className="flex items-center gap-2.5">
-              <span className={`inline-flex items-center px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider ${colors.bg} ${colors.text} bg-opacity-10 backdrop-blur-sm border border-current border-opacity-10`}>
-                {CategoryLabels[article.category]}
-              </span>
-              <div className="flex items-center gap-1.5 text-[10px] font-medium text-zinc-400 dark:text-zinc-500">
-                <Clock size={12} className="opacity-70" />
-                <span className="shrink-0">{timeAgo}</span>
+        <div className="flex items-start gap-6">
+          <div className="flex-1 min-w-0 space-y-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <span className={`inline-flex items-center px-3 py-1 rounded-xl text-[10px] font-bold uppercase tracking-[0.15em] ${colors.bg} ${colors.text} bg-opacity-10 backdrop-blur-md border border-current border-opacity-15`}>
+                  {CategoryLabels[article.category]}
+                </span>
+                <div className="flex items-center gap-1.5 text-[10px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wider">
+                  <Clock size={12} className="opacity-50" />
+                  <span>{timeAgo.toUpperCase()}</span>
+                </div>
               </div>
               {!article.isRead && (
-                <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 animate-pulse shrink-0" />
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] font-bold text-indigo-500 dark:text-indigo-400 uppercase tracking-widest">New</span>
+                  <span className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_10px_rgba(99,102,241,0.8)] animate-pulse" />
+                </div>
               )}
             </div>
 
-            <p className={`text-sm leading-relaxed line-clamp-2 transition-colors ${!article.isRead ? 'font-bold text-zinc-900 dark:text-zinc-100' : 'font-medium text-zinc-500 dark:text-zinc-400'}`}>
+            <h3 className={`text-lg leading-tight transition-colors ${!article.isRead ? 'font-display font-bold text-zinc-900 dark:text-white' : 'font-display font-medium text-zinc-500 dark:text-zinc-400'}`}>
               {article.title}
-            </p>
+            </h3>
 
-            <div className="flex items-center justify-between group/footer">
-              <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-600 tracking-wide uppercase">
-                {article.feedSourceName}
-              </span>
+            <div className="flex items-center justify-between pt-2 border-t border-zinc-200/50 dark:border-white/[0.05]">
+              <div className="flex items-center gap-2">
+                <div className="w-6 h-6 rounded-lg bg-zinc-100 dark:bg-white/5 flex items-center justify-center">
+                  <span className="text-[10px] font-bold text-zinc-500">{article.feedSourceName.charAt(0)}</span>
+                </div>
+                <span className="text-[11px] font-bold text-zinc-400 dark:text-zinc-500 tracking-wide uppercase">
+                  {article.feedSourceName}
+                </span>
+              </div>
               
-              <div className="flex items-center gap-2 opacity-0 group-hover:opacity-100 transition-all translate-x-1 group-hover:translate-x-0">
+              <div className="flex items-center gap-3 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-x-2 group-hover:translate-x-0">
                 <a
                   href={article.url}
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={(e) => e.stopPropagation()}
-                  className="p-1.5 rounded-lg text-zinc-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors"
+                  className="p-2 rounded-xl text-zinc-400 hover:text-indigo-500 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-colors border border-transparent hover:border-indigo-500/20"
                 >
-                  <ExternalLink size={14} />
+                  <ExternalLink size={16} />
                 </a>
-                <ChevronRight size={14} className="text-zinc-300" />
+                <div className="w-8 h-8 rounded-full bg-indigo-500/10 flex items-center justify-center text-indigo-500">
+                  <ChevronRight size={18} />
+                </div>
               </div>
             </div>
           </div>
@@ -83,7 +99,7 @@ export default function ArticleCard({ article, isSelected, onClick }: ArticleCar
         {isSelected && (
           <motion.div 
             layoutId="active-pill"
-            className="absolute left-0 top-1/4 bottom-1/4 w-1 bg-indigo-500 rounded-r-full shadow-[0_0_12px_rgba(99,102,241,0.5)]"
+            className="absolute left-[-1px] top-1/3 bottom-1/3 w-1.5 bg-indigo-500 rounded-r-full shadow-[0_0_20px_rgba(99,102,241,0.6)]"
           />
         )}
       </button>

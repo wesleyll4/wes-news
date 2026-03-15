@@ -60,7 +60,7 @@ export default function Sidebar() {
             Main Feed
           </p>
         </div>
-        
+
         <NavLink
           to="/"
           onClick={handleAllNews}
@@ -119,7 +119,7 @@ export default function Sidebar() {
           <Settings size={18} />
           Settings
         </NavLink>
-        
+
         <div className="flex items-center gap-2 pt-4 px-1">
           <button
             onClick={toggleDarkMode}
@@ -162,7 +162,7 @@ export default function Sidebar() {
           fixed inset-y-0 left-0 z-40 w-72 glass border-r
           transform transition-transform duration-300 ease-[cubic-bezier(0.33,1,0.68,1)]
           ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}
-          md:relative md:translate-x-0 md:flex md:flex-col md:w-64 md:bg-white/40 md:dark:bg-zinc-900/40
+          md:relative md:translate-x-0 md:flex md:flex-col md:w-64 md:bg-zinc-50/50 md:dark:bg-zinc-900/40
         `}
       >
         {content}

@@ -9,9 +9,9 @@ export default function Layout() {
   return (
     <div className="relative flex h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
       {/* Background Ambient Glows */}
-      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/10 dark:bg-indigo-500/5 blur-[120px] rounded-full animate-blob pointer-events-none" />
-      <div className="absolute bottom-[10%] right-[-5%] w-[35%] h-[35%] bg-purple-500/10 dark:bg-purple-500/5 blur-[120px] rounded-full animate-blob animation-delay-2000 pointer-events-none" />
-      <div className="absolute top-[20%] right-[10%] w-[25%] h-[25%] bg-blue-500/10 dark:bg-blue-500/5 blur-[120px] rounded-full animate-blob animation-delay-4000 pointer-events-none" />
+      <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-indigo-500/[0.04] dark:bg-indigo-500/5 blur-[120px] rounded-full animate-blob pointer-events-none" />
+      <div className="absolute bottom-[10%] right-[-5%] w-[35%] h-[35%] bg-purple-500/[0.04] dark:bg-purple-500/5 blur-[120px] rounded-full animate-blob animation-delay-2000 pointer-events-none" />
+      <div className="absolute top-[20%] right-[10%] w-[25%] h-[25%] bg-blue-500/[0.04] dark:bg-blue-500/5 blur-[120px] rounded-full animate-blob animation-delay-4000 pointer-events-none" />
 
       <Sidebar />
 

@@ -86,10 +86,10 @@ export default function FeedPage() {
                 className="flex flex-col items-center justify-center h-64 gap-4 text-zinc-400"
               >
                 <div className="relative">
-                  <div className="absolute inset-0 bg-indigo-500 blur-xl opacity-20 animate-pulse" />
+                  <div className="absolute inset-0 bg-indigo-500 blur-[80px] opacity-10 animate-pulse" />
                   <Loader2 size={32} className="animate-spin text-indigo-500 relative" />
                 </div>
-                <span className="text-sm font-medium tracking-wide">Synthesizing feed...</span>
+                <span className="text-sm font-display font-medium tracking-widest uppercase opacity-60">Synthesizing feed...</span>
               </motion.div>
             ) : data?.items.length === 0 ? (
               <motion.div 
@@ -101,7 +101,18 @@ export default function FeedPage() {
                 <span className="text-sm font-medium">No articles in this frequency</span>
               </motion.div>
             ) : (
-              <div className="grid grid-cols-1 gap-1">
+              <motion.div 
+                variants={{
+                  show: {
+                    transition: {
+                      staggerChildren: 0.05
+                    }
+                  }
+                }}
+                initial="hidden"
+                animate="show"
+                className="grid grid-cols-1 gap-2 px-2"
+              >
                 {data?.items.map((article) => (
                   <ArticleCard
                     key={article.id}
@@ -110,7 +121,7 @@ export default function FeedPage() {
                     onClick={() => handleArticleClick(article)}
                   />
                 ))}
-              </div>
+              </motion.div>
             )}
           </AnimatePresence>
         </motion.div>

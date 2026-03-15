@@ -35,14 +35,14 @@ export default function LoginPage() {
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] bg-indigo-500/10 blur-[120px] rounded-full animate-blob pointer-events-none" />
       <div className="absolute bottom-[-10%] right-[-10%] w-[50%] h-[50%] bg-purple-500/10 blur-[120px] rounded-full animate-blob animation-delay-2000 pointer-events-none" />
 
-      <motion.div 
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="max-w-md w-full z-10"
       >
         {/* Logo/Brand */}
         <div className="flex flex-col items-center mb-10 text-center">
-          <motion.div 
+          <motion.div
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             className="w-16 h-16 rounded-[2rem] bg-indigo-600 dark:bg-indigo-500 flex items-center justify-center text-white shadow-2xl shadow-indigo-500/30 mb-6"
@@ -52,7 +52,7 @@ export default function LoginPage() {
           <h1 className="text-4xl font-display font-bold text-zinc-900 dark:text-zinc-100 tracking-tight bg-gradient-to-br from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
             WesNews
           </h1>
-          <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-bold tracking-[0.2em] uppercase text-[10px] opacity-60">Quantum Info Feed</p>
+          <p className="text-zinc-500 dark:text-zinc-400 mt-2 font-bold tracking-[0.2em] uppercase text-[10px] opacity-60">Core Feed</p>
         </div>
 
         <div className="glass-card rounded-[2.5rem] p-8 md:p-10">
@@ -95,7 +95,7 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <motion.div 
+              <motion.div
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 className="p-4 rounded-2xl bg-red-500/10 border border-red-500/20 text-red-500 text-xs font-bold uppercase tracking-wide"
