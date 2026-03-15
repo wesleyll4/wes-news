@@ -45,6 +45,12 @@ public class GeminiCuratorService : IAiCuratorService
         foreach (Category category in Categories)
         {
             await CurateCategoryAsync(category, cancellationToken);
+
+            if (category != Categories[^1])
+            {
+                _logger.LogDebug("Waiting {Seconds}s before next category (rate limit)", _options.DelayBetweenCategoriesSeconds);
+                await Task.Delay(TimeSpan.FromSeconds(_options.DelayBetweenCategoriesSeconds), cancellationToken);
+            }
         }
 
         _logger.LogInformation("AI curation completed");

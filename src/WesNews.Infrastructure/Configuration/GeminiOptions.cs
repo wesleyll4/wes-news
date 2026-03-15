@@ -7,6 +7,7 @@ public class GeminiOptions
     public int CandidateLookbackHours { get; init; } = 48;
     public int CandidateLimit { get; init; } = 30;
     public int TopPicksPerCategory { get; init; } = 3;
+    public int DelayBetweenCategoriesSeconds { get; init; } = 8;
     public string MorningCron { get; init; } = "0 0 6 * * ?";
     public string AfternoonCron { get; init; } = "0 0 14 * * ?";
 }
