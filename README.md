@@ -23,7 +23,7 @@ Agregador pessoal de notícias tech — busca automaticamente artigos de RSS fee
 
 ## ✨ AI Picks — Curadoria Inteligente com Gemini
 
-O **AI Picks** é o coração do WesNews. Um agente de IA powered by **Google Gemini 2.5 Flash** roda automaticamente 2x ao dia (6h e 14h) e seleciona as **3 notícias mais relevantes de cada categoria** com base em:
+Um agente de IA powered by **Google Gemini 2.5 Flash** roda automaticamente 2x ao dia (6h e 14h) e seleciona as **3 notícias mais relevantes de cada categoria** com base em:
 
 - **Impacto técnico** — mudanças de paradigma, lançamentos importantes, breaking changes
 - **Viralidade** — o que a comunidade dev está discutindo agora
