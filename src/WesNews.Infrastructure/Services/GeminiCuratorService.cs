@@ -68,9 +68,12 @@ public class GeminiCuratorService : IAiCuratorService
 
             if (candidates.Count < _options.TopPicksPerCategory)
             {
-                _logger.LogDebug("Not enough candidates for {Category} ({Count}) — skipping", category, candidates.Count);
+                _logger.LogWarning("Not enough candidates for {Category} — found {Count}, need {Min}. Lookback: {Hours}h",
+                    category, candidates.Count, _options.TopPicksPerCategory, _options.CandidateLookbackHours);
                 return;
             }
+
+            _logger.LogInformation("Found {Count} candidates for {Category}, sending to Gemini", candidates.Count, category);
 
             List<Guid> featuredIds = await RankWithGeminiAsync(category, candidates, cancellationToken);
 

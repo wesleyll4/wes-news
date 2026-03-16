@@ -97,8 +97,8 @@ public class NewsArticleRepository(AppDbContext context) : INewsArticleRepositor
         List<NewsArticle> items = await context.NewsArticles
             .Include(a => a.FeedSource)
             .AsNoTracking()
-            .Where(a => a.FeedSource.Category == category && a.PublishedAt >= since)
-            .OrderByDescending(a => a.PublishedAt)
+            .Where(a => a.FeedSource.Category == category && a.CreatedAt >= since)
+            .OrderByDescending(a => a.CreatedAt)
             .Take(limit)
             .ToListAsync(cancellationToken);
 
