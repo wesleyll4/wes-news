@@ -6,7 +6,7 @@ namespace WesNews.Api.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 public class CuratorController(
-    IAiCuratorService curatorService,
+    IServiceScopeFactory scopeFactory,
     IConfiguration configuration,
     ILogger<CuratorController> logger) : ControllerBase
 {
@@ -28,6 +28,8 @@ public class CuratorController(
 
         _ = Task.Run(async () =>
         {
+            await using AsyncServiceScope scope = scopeFactory.CreateAsyncScope();
+            IAiCuratorService curatorService = scope.ServiceProvider.GetRequiredService<IAiCuratorService>();
             try
             {
                 await curatorService.CurateAsync(CancellationToken.None);
