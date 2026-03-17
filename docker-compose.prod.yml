@@ -1,0 +1,54 @@
+services:
+  caddy:
+    image: caddy:2-alpine
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    environment:
+      - DOMAIN=${DOMAIN:-localhost}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - api
+      - web
+    restart: unless-stopped
+
+  api:
+    image: ghcr.io/wesleyll4/wes-news-api:latest
+    expose:
+      - "5000"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:5000
+      - ConnectionStrings__DefaultConnection=Data Source=/data/wesnews.db
+      - RESEND_APITOKEN=${RESEND_APITOKEN}
+      - Gemini__ApiKey=${GEMINI_APIKEY}
+      - Curator__Secret=${CURATOR_SECRET}
+      - Jwt__Key=${JWT_SECRET}
+      - DigestEmail__ToEmail=${DIGEST_EMAIL_TO}
+      - DigestEmail__FromEmail=${DIGEST_EMAIL_FROM:-digest@resend.dev}
+      - DigestEmail__CronExpression=${DIGEST_CRON:-0 0 7 * * ?}
+      - AllowedOrigins__0=https://${DOMAIN}
+      - AllowedOrigins__1=http://${DOMAIN}
+    volumes:
+      - wesnews_data:/data
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5000/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  web:
+    image: ghcr.io/wesleyll4/wes-news-web:latest
+    expose:
+      - "80"
+    restart: unless-stopped
+
+volumes:
+  wesnews_data:
+  caddy_data:
+  caddy_config:
