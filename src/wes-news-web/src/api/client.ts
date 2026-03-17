@@ -3,9 +3,9 @@ import { useAuthStore } from '../store/authStore'
 import { Category, NewsArticleDto, PagedResult } from '../types'
 
 const api = axios.create({
-  baseURL: (import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000')
-    .replace(/\/?$/, '')
-    .concat('/api/'),
+  baseURL: import.meta.env.VITE_API_BASE_URL
+    ? import.meta.env.VITE_API_BASE_URL.replace(/\/?$/, '').concat('/api/')
+    : '/api/',
   headers: {
     'Content-Type': 'application/json'
   }
