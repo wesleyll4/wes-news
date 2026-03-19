@@ -22,15 +22,15 @@ public class UsersControllerTests
 
     private static ClaimsPrincipal CreateAuthenticatedUser(Guid userId)
     {
-        var claims = new[] { new Claim(ClaimTypes.NameIdentifier, userId.ToString()) };
-        var identity = new ClaimsIdentity(claims, "TestAuth");
+        Claim[] claims = [new Claim(ClaimTypes.NameIdentifier, userId.ToString())];
+        ClaimsIdentity identity = new ClaimsIdentity(claims, "TestAuth");
         return new ClaimsPrincipal(identity);
     }
 
     private static ClaimsPrincipal CreateUnauthenticatedUser()
     {
         // No ClaimTypes.NameIdentifier claim — simulates missing/invalid identity
-        var identity = new ClaimsIdentity();
+        ClaimsIdentity identity = new ClaimsIdentity();
         return new ClaimsPrincipal(identity);
     }
 
@@ -56,7 +56,7 @@ public class UsersControllerTests
     public async Task DeleteMe_WhenUserNotFound_Returns404()
     {
         // Arrange — valid auth but service throws KeyNotFoundException (Req 1.4)
-        var userId = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
         _sut.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext { User = CreateAuthenticatedUser(userId) }
@@ -82,7 +82,7 @@ public class UsersControllerTests
             HttpContext = new DefaultHttpContext { User = CreateUnauthenticatedUser() }
         };
 
-        var request = new UpdateDigestPreferenceRequest { DigestEnabled = true };
+        UpdateDigestPreferenceRequest request = new UpdateDigestPreferenceRequest { DigestEnabled = true };
 
         // Act
         IActionResult result = await _sut.UpdateDigestPreference(request);
@@ -95,7 +95,7 @@ public class UsersControllerTests
     public async Task UpdateDigestPreference_WhenUserNotFound_Returns404()
     {
         // Arrange — valid auth but service throws KeyNotFoundException
-        var userId = Guid.NewGuid();
+        Guid userId = Guid.NewGuid();
         _sut.ControllerContext = new ControllerContext
         {
             HttpContext = new DefaultHttpContext { User = CreateAuthenticatedUser(userId) }
@@ -105,7 +105,7 @@ public class UsersControllerTests
             .UpdateDigestPreferenceAsync(userId, Arg.Any<bool>(), Arg.Any<CancellationToken>())
             .Returns<DigestPreferenceResponse>(_ => throw new KeyNotFoundException());
 
-        var request = new UpdateDigestPreferenceRequest { DigestEnabled = true };
+        UpdateDigestPreferenceRequest request = new UpdateDigestPreferenceRequest { DigestEnabled = true };
 
         // Act
         IActionResult result = await _sut.UpdateDigestPreference(request);

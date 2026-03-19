@@ -92,14 +92,15 @@ public class DigestEmailService(IResend resend, IOptions<DigestEmailOptions> opt
             return "<p>No unread articles found for today's digest.</p>";
         }
 
-        var grouped = articleList
+        IGrouping<WesNews.Domain.Enums.Category, NewsArticle>[] grouped = articleList
             .GroupBy(a => a.FeedSource.Category)
-            .OrderBy(g => g.Key);
+            .OrderBy(g => g.Key)
+            .ToArray();
 
         System.Text.StringBuilder sb = new System.Text.StringBuilder();
         sb.Append(BuildHtmlHeader());
 
-        foreach (var group in grouped)
+        foreach (IGrouping<WesNews.Domain.Enums.Category, NewsArticle> group in grouped)
         {
             string categoryName = group.Key.ToString();
             sb.Append($"<h2 style=\"color:#2563eb;border-bottom:2px solid #e5e7eb;padding-bottom:8px;\">{categoryName}</h2>");

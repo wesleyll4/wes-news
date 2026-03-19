@@ -97,9 +97,11 @@ export const digestApi = {
 
 export const usersApi = {
   getMe: () =>
-    api.get<{ digestEnabled: boolean }>('users/me').then(r => r.data),
+    api.get<{ email: string; digestEnabled: boolean }>('users/me').then(r => r.data),
   updateDigestPreference: (digestEnabled: boolean) =>
     api.patch<{ digestEnabled: boolean }>('users/me/digest-preference', { digestEnabled }).then(r => r.data),
+  updateEmail: (email: string) =>
+    api.patch<{ email: string; digestEnabled: boolean }>('users/me/email', { email }).then(r => r.data),
   deleteAccount: () =>
     api.delete('users/me').then(r => r.data)
 }

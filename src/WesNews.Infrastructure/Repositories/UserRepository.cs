@@ -18,6 +18,11 @@ public class UserRepository(AppDbContext context) : IUserRepository
         return await context.Users.AnyAsync(u => u.Username == username, cancellationToken);
     }
 
+    public async Task<bool> EmailExistsAsync(string email, CancellationToken cancellationToken = default)
+    {
+        return await context.Users.AnyAsync(u => u.Email.ToLower() == email.ToLower(), cancellationToken);
+    }
+
     public async Task<IEnumerable<User>> GetAllAsync(CancellationToken cancellationToken = default)
     {
         return await context.Users
