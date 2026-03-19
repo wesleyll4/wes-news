@@ -11,9 +11,12 @@ public class NewsArticleRepository(AppDbContext context) : INewsArticleRepositor
 {
     public async Task<PagedResult<NewsArticle>> GetPagedAsync(NewsQuery query, CancellationToken cancellationToken = default)
     {
+        DateTime cutoff = DateTime.UtcNow.AddDays(-7);
+
         IQueryable<NewsArticle> queryable = context.NewsArticles
             .Include(a => a.FeedSource)
-            .AsNoTracking();
+            .AsNoTracking()
+            .Where(a => a.PublishedAt >= cutoff);
 
         if (query.Category.HasValue)
         {

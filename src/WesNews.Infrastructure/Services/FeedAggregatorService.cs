@@ -30,8 +30,11 @@ public class FeedAggregatorService(
 
             Feed feed = FeedReader.ReadFromByteArray(content);
 
+            DateTime cutoff = DateTime.UtcNow.AddDays(-7);
+
             IEnumerable<FeedItem> feedItems = feed.Items
-                .Where(item => !string.IsNullOrWhiteSpace(item.Link));
+                .Where(item => !string.IsNullOrWhiteSpace(item.Link))
+                .Where(item => (item.PublishingDate ?? DateTime.UtcNow) >= cutoff);
 
             if (feedSource.MaxItemsPerFetch.HasValue)
             {
