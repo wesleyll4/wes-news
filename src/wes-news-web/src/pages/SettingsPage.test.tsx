@@ -45,6 +45,7 @@ import { useAuthStore } from '../store/authStore'
 const mockUsersApi = usersApi as {
   getMe: ReturnType<typeof vi.fn>
   updateDigestPreference: ReturnType<typeof vi.fn>
+  updateEmail: ReturnType<typeof vi.fn>
   deleteAccount: ReturnType<typeof vi.fn>
 }
 
