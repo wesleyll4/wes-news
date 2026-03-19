@@ -28,6 +28,7 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
 
         List<Claim> claims = new List<Claim>
         {
+            new(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new(ClaimTypes.Name, user.Username),
             new(ClaimTypes.Email, user.Email),
             new(ClaimTypes.Role, user.Role)
@@ -52,7 +53,8 @@ public class AuthService(IConfiguration configuration, IUserRepository userRepos
         {
             Token = tokenString,
             Role = user.Role,
-            ExpiresAt = expiresAt
+            ExpiresAt = expiresAt,
+            DigestEnabled = user.DigestEnabled
         };
     }
 

@@ -1,10 +1,11 @@
 import { Outlet } from 'react-router-dom'
-import { Menu } from 'lucide-react'
+import { Menu, Moon, Sun } from 'lucide-react'
 import Sidebar from './Sidebar'
 import { useUiStore } from '../store/uiStore'
 
 export default function Layout() {
   const setSidebarOpen = useUiStore((s) => s.setSidebarOpen)
+  const { isDarkMode, toggleDarkMode } = useUiStore()
 
   return (
     <div className="relative flex h-screen bg-zinc-50 dark:bg-[#050505] text-zinc-900 dark:text-zinc-100 overflow-hidden font-sans">
@@ -23,9 +24,16 @@ export default function Layout() {
           >
             <Menu size={20} />
           </button>
-          <span className="font-display font-bold text-xl tracking-tight bg-gradient-to-br from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
+          <span className="flex-1 font-display font-bold text-xl tracking-tight bg-gradient-to-br from-zinc-900 to-zinc-500 dark:from-white dark:to-zinc-500 bg-clip-text text-transparent">
             WesNews
           </span>
+          <button
+            onClick={toggleDarkMode}
+            className="p-2 rounded-xl text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100/50 dark:hover:bg-zinc-800/50 transition-all"
+            title={isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+          >
+            {isDarkMode ? <Sun size={18} /> : <Moon size={18} />}
+          </button>
         </header>
 
         <main className="flex-1 overflow-auto">

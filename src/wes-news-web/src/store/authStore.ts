@@ -5,7 +5,8 @@ interface AuthState {
   token: string | null
   role: string | null
   isAuthenticated: boolean
-  login: (token: string, role: string) => void
+  digestEnabled: boolean
+  login: (token: string, role: string, digestEnabled: boolean) => void
   logout: () => void
 }
 
@@ -15,8 +16,10 @@ export const useAuthStore = create<AuthState>()(
       token: null,
       role: null,
       isAuthenticated: false,
-      login: (token: string, role: string) => set({ token, role, isAuthenticated: true }),
-      logout: () => set({ token: null, role: null, isAuthenticated: false }),
+      digestEnabled: false,
+      login: (token: string, role: string, digestEnabled: boolean) =>
+        set({ token, role, isAuthenticated: true, digestEnabled }),
+      logout: () => set({ token: null, role: null, isAuthenticated: false, digestEnabled: false }),
     }),
     {
       name: 'wesnews-auth',

@@ -14,6 +14,7 @@ public class DigestServiceTests
 {
     private readonly INewsArticleRepository _articleRepository;
     private readonly IDigestEmailService _emailService;
+    private readonly IUserRepository _userRepository;
     private readonly ILogger<DigestService> logger;
     private readonly DigestService _sut;
 
@@ -22,8 +23,9 @@ public class DigestServiceTests
     {
         _articleRepository = Substitute.For<INewsArticleRepository>();
         _emailService = Substitute.For<IDigestEmailService>();
+        _userRepository = Substitute.For<IUserRepository>();
         logger = Substitute.For<ILogger<DigestService>>();
-        _sut = new DigestService(_articleRepository, _emailService, logger);
+        _sut = new DigestService(_articleRepository, _emailService, _userRepository, logger);
     }
 
     [Fact]
@@ -55,7 +57,7 @@ public class DigestServiceTests
     }
 
     [Fact]
-    public async Task SendAsync_ShouldCallEmailService_WithCorrectArticles()
+    public async Task SendAsync_ShouldCallSendToRecipientAsync_ForEachEligibleUser()
     {
         IReadOnlyList<NewsArticle> articles = FakeData.CreateNewsArticles(2);
         PagedResult<NewsArticle> pagedResult = new PagedResult<NewsArticle>(articles, 2, 1, 5);
@@ -63,9 +65,53 @@ public class DigestServiceTests
         _articleRepository.GetPagedAsync(Arg.Any<NewsQuery>(), Arg.Any<CancellationToken>())
             .Returns(pagedResult);
 
+        List<User> users =
+        [
+            new User { Email = "user1@example.com", DigestEnabled = true },
+            new User { Email = "user2@example.com", DigestEnabled = true }
+        ];
+        _userRepository.GetDigestEnabledUsersAsync(Arg.Any<CancellationToken>())
+            .Returns(users);
+
         await _sut.SendAsync(CancellationToken.None);
 
-        await _emailService.Received(1).SendAsync(
+        await _emailService.Received(2).SendToRecipientAsync(
+            Arg.Any<string>(),
+            Arg.Any<IEnumerable<NewsArticle>>(),
+            Arg.Any<CancellationToken>());
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldNotSendEmails_AndLogInformative_WhenNoEligibleUsers()
+    {
+        _userRepository.GetDigestEnabledUsersAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<User>());
+
+        await _sut.SendAsync(CancellationToken.None);
+
+        await _emailService.DidNotReceive().SendToRecipientAsync(
+            Arg.Any<string>(),
+            Arg.Any<IEnumerable<NewsArticle>>(),
+            Arg.Any<CancellationToken>());
+
+        logger.Received().Log(
+            LogLevel.Information,
+            Arg.Any<EventId>(),
+            Arg.Is<object>(o => o.ToString()!.Contains("No users") || o.ToString()!.Contains("Skipping")),
+            null,
+            Arg.Any<Func<object, Exception?, string>>());
+    }
+
+    [Fact]
+    public async Task SendAsync_ShouldNotSendEmails_WhenNoEligibleUsers()
+    {
+        _userRepository.GetDigestEnabledUsersAsync(Arg.Any<CancellationToken>())
+            .Returns(new List<User>());
+
+        await _sut.SendAsync(CancellationToken.None);
+
+        await _emailService.DidNotReceive().SendToRecipientAsync(
+            Arg.Any<string>(),
             Arg.Any<IEnumerable<NewsArticle>>(),
             Arg.Any<CancellationToken>());
     }

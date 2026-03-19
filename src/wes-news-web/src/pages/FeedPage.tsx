@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useUiStore } from '../store/uiStore'
+import { useAuthStore } from '../store/authStore'
 import { newsApi } from '../api/client'
 import ArticleCard from '../components/ArticleCard'
 import ArticleReader from '../components/ArticleReader'
@@ -11,6 +12,7 @@ import { motion, AnimatePresence } from 'framer-motion'
 
 export default function FeedPage() {
   const { selectedCategory, searchTerm, unreadOnly, selectedArticleId, setSelectedArticleId } = useUiStore()
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
 
   const { data, isLoading, refetch, isFetching } = useQuery({
@@ -30,7 +32,7 @@ export default function FeedPage() {
 
   function handleArticleClick(article: NewsArticleDto) {
     setSelectedArticleId(article.id)
-    if (!article.isRead) {
+    if (isAuthenticated && !article.isRead) {
       markAsReadMutation.mutate(article.id)
     }
   }

@@ -26,7 +26,7 @@ public class DigestEmailService(IResend resend, IOptions<DigestEmailOptions> opt
 
             EmailMessage message = new()
             {
-                From = _options.FromEmail,
+                From = $"WesNews Digest <{_options.FromEmail}>",
                 Subject = $"WesNews Digest — {DateTime.UtcNow:dd/MM/yyyy}",
                 HtmlBody = html
             };
@@ -45,6 +45,40 @@ public class DigestEmailService(IResend resend, IOptions<DigestEmailOptions> opt
         catch (Exception ex)
         {
             logger.LogError(ex, "An error occurred while sending the digest email");
+            throw;
+        }
+    }
+
+    public async Task SendToRecipientAsync(string toEmail, IEnumerable<NewsArticle> articles, CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            if (string.IsNullOrWhiteSpace(toEmail) || string.IsNullOrWhiteSpace(_options.FromEmail))
+            {
+                logger.LogWarning("Digest email not sent because toEmail or FromEmail is not configured");
+                return;
+            }
+
+            string html = BuildPreviewHtml(articles);
+
+            logger.LogInformation("Sending digest email to {ToEmail} with {ArticleCount} articles", toEmail, articles.Count());
+
+            EmailMessage message = new()
+            {
+                From = $"WesNews Digest <{_options.FromEmail}>",
+                Subject = $"WesNews Digest — {DateTime.UtcNow:dd/MM/yyyy}",
+                HtmlBody = html
+            };
+
+            message.To.Add(toEmail);
+
+            await resend.EmailSendAsync(message, cancellationToken);
+
+            logger.LogInformation("Digest email sent to {ToEmail}", toEmail);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "An error occurred while sending the digest email to {ToEmail}", toEmail);
             throw;
         }
     }

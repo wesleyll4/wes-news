@@ -9,7 +9,7 @@ import RegisterPage from './pages/RegisterPage'
 import { useUiStore } from './store/uiStore'
 import { useAuthStore } from './store/authStore'
 
-function ProtectedRoute({ children }: { children: React.ReactNode }) {
+function AuthGuard({ children }: { children: React.ReactNode }) {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   if (!isAuthenticated) return <Navigate to="/login" replace />
   return <>{children}</>
@@ -27,15 +27,15 @@ export default function App() {
       <Routes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        
-        <Route path="/" element={
-          <ProtectedRoute>
-            <Layout />
-          </ProtectedRoute>
-        }>
+
+        <Route path="/" element={<Layout />}>
           <Route index element={<FeedPage />} />
           <Route path="sources" element={<SourcesPage />} />
-          <Route path="settings" element={<SettingsPage />} />
+          <Route path="settings" element={
+            <AuthGuard>
+              <SettingsPage />
+            </AuthGuard>
+          } />
         </Route>
       </Routes>
     </BrowserRouter>

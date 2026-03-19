@@ -18,8 +18,13 @@ export default function SourcesPage() {
     queryFn: feedsApi.getAll
   })
 
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const isAdmin = useAuthStore((s) => s.role === 'Admin')
-  const tooltip = !isAdmin ? 'Apenas administradores podem gerenciar feeds' : ''
+  const tooltip = !isAdmin
+    ? isAuthenticated
+      ? 'Apenas administradores podem gerenciar feeds'
+      : 'Faça login como administrador para gerenciar fontes'
+    : ''
 
   const createMutation = useMutation({
     // ... (lines 19-48 skipped for brevity, but I need to replace from line 57)
@@ -61,7 +66,9 @@ export default function SourcesPage() {
         >
           <ShieldAlert size={18} className="shrink-0" />
           <p className="text-xs font-bold uppercase tracking-wider">
-            Apenas administradores podem gerenciar fontes de feed.
+            {isAuthenticated
+              ? 'Apenas administradores podem gerenciar fontes.'
+              : 'Faça login como administrador para gerenciar fontes.'}
           </p>
         </motion.div>
       )}
@@ -163,7 +170,7 @@ export default function SourcesPage() {
                           onClick={() => isAdmin && toggleMutation.mutate({ id: feed.id, isActive: !feed.isActive })}
                           className={`p-2 rounded-lg text-zinc-400 transition-colors ${!isAdmin ? 'opacity-40 cursor-not-allowed' : 'hover:text-zinc-700 dark:hover:text-zinc-200 hover:bg-zinc-100 dark:hover:bg-zinc-800'}`}
                           title={tooltip || (feed.isActive ? 'Disable' : 'Enable')}
-                          disabled={!isAdmin}
+                          disabled={!isAdmin} // disabled for visitors (isAuthenticated=false) and non-Admin users
                         >
                           {feed.isActive
                             ? <ToggleRight size={18} className={isAdmin ? 'text-zinc-900 dark:text-zinc-100' : ''} />
@@ -173,7 +180,7 @@ export default function SourcesPage() {
                           onClick={() => isAdmin && deleteMutation.mutate(feed.id)}
                           className={`p-2 rounded-lg text-zinc-400 transition-colors ${!isAdmin ? 'opacity-40 cursor-not-allowed' : 'hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-950/40'}`}
                           title={tooltip || 'Delete'}
-                          disabled={!isAdmin}
+                          disabled={!isAdmin} // disabled for visitors (isAuthenticated=false) and non-Admin users
                         >
                           <Trash2 size={14} />
                         </button>

@@ -1,5 +1,5 @@
 import { NavLink, useNavigate } from 'react-router-dom'
-import { Rss, Settings, BookOpen, Moon, Sun, List, LogOut, Compass } from 'lucide-react'
+import { Rss, Settings, BookOpen, Moon, Sun, List, LogOut, Compass, LogIn, UserPlus } from 'lucide-react'
 import { Category, CategoryLabels, CategoryColors } from '../types'
 import { useUiStore } from '../store/uiStore'
 import { useAuthStore } from '../store/authStore'
@@ -13,6 +13,7 @@ export default function Sidebar() {
     sidebarOpen, setSidebarOpen
   } = useUiStore()
   const logout = useAuthStore((s) => s.logout)
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const navigate = useNavigate()
 
   const categories = Object.values(Category).filter((v): v is Category => typeof v === 'number')
@@ -31,6 +32,7 @@ export default function Sidebar() {
   }
 
   function handleUnreadOnly() {
+    if (!isAuthenticated) return
     setUnreadOnly(!unreadOnly)
     navigate('/')
     setSidebarOpen(false)
@@ -52,6 +54,13 @@ export default function Sidebar() {
             </p>
           </div>
         </div>
+        <button
+          onClick={toggleDarkMode}
+          className="w-8 h-8 flex items-center justify-center rounded-xl text-zinc-400 hover:text-zinc-900 dark:hover:text-zinc-100 hover:bg-zinc-100 dark:hover:bg-zinc-800 transition-all"
+          title={isDarkMode ? 'Switch to Light' : 'Switch to Dark'}
+        >
+          {isDarkMode ? <Sun size={15} /> : <Moon size={15} />}
+        </button>
       </div>
 
       <nav className="flex-1 overflow-y-auto px-4 py-2 space-y-1 custom-scrollbar">
@@ -111,14 +120,18 @@ export default function Sidebar() {
           <Rss size={18} />
           Sources
         </NavLink>
-        <NavLink
-          to="/settings"
-          onClick={() => setSidebarOpen(false)}
-          className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
-        >
-          <Settings size={18} />
-          Settings
-        </NavLink>
+        {isAuthenticated ? (
+          <>
+            <NavLink
+              to="/settings"
+              onClick={() => setSidebarOpen(false)}
+              className={({ isActive }) => `nav-item ${isActive ? 'nav-item-active' : ''}`}
+            >
+              <Settings size={18} />
+              Settings
+            </NavLink>
+          </>
+        ) : null}
         <a
           href="https://github.com/wesleyll4/wes-news"
           target="_blank"
@@ -131,24 +144,35 @@ export default function Sidebar() {
           GitHub
         </a>
 
-        <div className="flex items-center gap-2 pt-4 px-1">
-          <button
-            onClick={toggleDarkMode}
-            className="flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl border border-zinc-200 dark:border-zinc-800 text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100 transition-all text-xs font-medium"
-          >
-            {isDarkMode ? <Sun size={14} /> : <Moon size={14} />}
-            {isDarkMode ? 'Light' : 'Dark'}
-          </button>
-          <button
-            onClick={() => {
-              logout()
-              navigate('/login')
-            }}
-            className="w-11 h-11 flex items-center justify-center rounded-xl bg-red-500/10 text-red-500 hover:bg-red-500 hover:text-white transition-all"
-            title="Sign Out"
-          >
-            <LogOut size={16} />
-          </button>
+        <div className="flex items-center justify-between pt-4 px-1">
+          {isAuthenticated ? (
+            <button
+              onClick={() => { logout(); navigate('/') }}
+              className="w-9 h-9 flex items-center justify-center rounded-xl text-zinc-400 hover:bg-red-500/10 hover:text-red-500 transition-all"
+              title="Sign Out"
+            >
+              <LogOut size={16} />
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 w-full">
+              <NavLink
+                to="/login"
+                onClick={() => setSidebarOpen(false)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-zinc-600 dark:text-zinc-400 border border-zinc-200 dark:border-zinc-700 hover:border-indigo-400 hover:text-indigo-500 transition-all"
+              >
+                <LogIn size={13} />
+                Entrar
+              </NavLink>
+              <NavLink
+                to="/register"
+                onClick={() => setSidebarOpen(false)}
+                className="flex-1 flex items-center justify-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium text-white bg-indigo-600 hover:bg-indigo-500 transition-all"
+              >
+                <UserPlus size={13} />
+                Cadastrar
+              </NavLink>
+            </div>
+          )}
         </div>
       </div>
     </div>

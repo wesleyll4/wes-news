@@ -7,10 +7,10 @@ namespace WesNews.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[Authorize]
 public class FeedsController(FeedService feedService) : ControllerBase
 {
     [HttpGet]
+    [AllowAnonymous]
     [ProducesResponseType(typeof(IReadOnlyList<FeedSourceDto>), StatusCodes.Status200OK)]
     public async Task<IActionResult> GetFeeds(CancellationToken cancellationToken = default)
     {

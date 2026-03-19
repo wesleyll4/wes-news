@@ -7,7 +7,7 @@ using WesNews.Domain.Enums;
 
 namespace WesNews.Application.Services;
 
-public class DigestService(INewsArticleRepository articleRepository, IDigestEmailService emailService, ILogger<DigestService> logger)
+public class DigestService(INewsArticleRepository articleRepository, IDigestEmailService emailService, IUserRepository userRepository, ILogger<DigestService> logger)
 {
     private const int ArticlesPerCategory = 5;
 
@@ -35,8 +35,29 @@ public class DigestService(INewsArticleRepository articleRepository, IDigestEmai
     public async Task SendAsync(CancellationToken cancellationToken = default)
     {
         logger.LogInformation("Starting digest email generation and sending process");
+
+        IEnumerable<User> recipients = await userRepository.GetDigestEnabledUsersAsync(cancellationToken);
+        List<User> recipientList = recipients.ToList();
+
+        if (recipientList.Count == 0)
+        {
+            logger.LogInformation("No users with digest enabled. Skipping email sending.");
+            return;
+        }
+
         IReadOnlyList<NewsArticle> articles = await BuildDigestArticlesAsync(cancellationToken);
-        await emailService.SendAsync(articles, cancellationToken);
+
+        foreach (User user in recipientList)
+        {
+            try
+            {
+                await emailService.SendToRecipientAsync(user.Email, articles, cancellationToken);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "Failed to send digest to {Email}", user.Email);
+            }
+        }
     }
 
     public async Task<DigestPreviewDto> GetPreviewAsync(CancellationToken cancellationToken = default)

@@ -47,6 +47,7 @@ interface LoginResponse {
   token: string
   role: string
   expiresAt: string
+  digestEnabled: boolean
 }
 
 interface NewsQuery {
@@ -60,7 +61,7 @@ interface NewsQuery {
 export const authApi = {
   login: (data: LoginRequest) =>
     api.post<LoginResponse>('auth/login', data).then(res => {
-      useAuthStore.getState().login(res.data.token, res.data.role)
+      useAuthStore.getState().login(res.data.token, res.data.role, res.data.digestEnabled)
       return res
     }),
   register: (data: RegisterRequest) =>
@@ -92,6 +93,15 @@ export const digestApi = {
     api.get<{ html: string; articleCount: number }>('digest/preview').then(res => res.data),
   send: () =>
     api.post('digest/send').then(res => res.data)
+}
+
+export const usersApi = {
+  getMe: () =>
+    api.get<{ digestEnabled: boolean }>('users/me').then(r => r.data),
+  updateDigestPreference: (digestEnabled: boolean) =>
+    api.patch<{ digestEnabled: boolean }>('users/me/digest-preference', { digestEnabled }).then(r => r.data),
+  deleteAccount: () =>
+    api.delete('users/me').then(r => r.data)
 }
 
 export default api

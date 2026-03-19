@@ -21,6 +21,7 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
             entity.Property(u => u.FullName).HasMaxLength(200);
             entity.Property(u => u.PasswordHash).IsRequired();
             entity.Property(u => u.Role).IsRequired().HasMaxLength(20);
+            entity.Property(u => u.DigestEnabled).IsRequired().HasDefaultValue(false);
         });
         modelBuilder.Entity<NewsArticle>(entity =>
         {

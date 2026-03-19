@@ -1,0 +1,167 @@
+/**
+ * Feature: public-access, Property 1: public routes accessible without auth
+ *
+ * Validates: Requirements 1.1, 1.5
+ */
+
+import { render } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+import { vi, describe, it, beforeEach } from 'vitest'
+import * as fc from 'fast-check'
+
+// --- Mocks ---
+
+// Replace BrowserRouter with MemoryRouter so we can control the initial route
+let currentInitialRoute = '/'
+
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual<typeof import('react-router-dom')>('react-router-dom')
+  return {
+    ...actual,
+    BrowserRouter: ({ children }: { children: React.ReactNode }) => (
+      <actual.MemoryRouter initialEntries={[currentInitialRoute]}>
+        {children}
+      </actual.MemoryRouter>
+    ),
+  }
+})
+
+vi.mock('../store/authStore', () => ({
+  useAuthStore: vi.fn(),
+}))
+
+vi.mock('../store/uiStore', () => ({
+  useUiStore: vi.fn(),
+}))
+
+vi.mock('../api/client', () => ({
+  newsApi: {
+    getAll: vi.fn(),
+    markAsRead: vi.fn(),
+    delete: vi.fn(),
+  },
+  feedsApi: {
+    getAll: vi.fn(),
+    create: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+  },
+  digestApi: {
+    preview: vi.fn(),
+    send: vi.fn(),
+  },
+  usersApi: {
+    getMe: vi.fn(),
+    updateDigestPreference: vi.fn(),
+    deleteAccount: vi.fn(),
+  },
+}))
+
+import App from '../App'
+import { useAuthStore } from '../store/authStore'
+import { useUiStore } from '../store/uiStore'
+import { newsApi, feedsApi } from '../api/client'
+
+const mockUseAuthStore = useAuthStore as unknown as ReturnType<typeof vi.fn>
+const mockUseUiStore = useUiStore as unknown as ReturnType<typeof vi.fn>
+const mockNewsApi = newsApi as unknown as { getAll: ReturnType<typeof vi.fn> }
+const mockFeedsApi = feedsApi as unknown as { getAll: ReturnType<typeof vi.fn> }
+
+const noopFn = vi.fn()
+
+// Auth store state — supports both selector and no-selector usage
+const authState = {
+  isAuthenticated: false,
+  token: null as null,
+  role: null as null,
+  digestEnabled: false,
+  login: noopFn,
+  logout: noopFn,
+}
+
+// UI store state — supports both selector and no-selector usage
+const uiState = {
+  isDarkMode: false,
+  selectedCategory: undefined as undefined,
+  searchTerm: '',
+  unreadOnly: false,
+  selectedArticleId: undefined as undefined,
+  sidebarOpen: false,
+  setSelectedArticleId: noopFn,
+  setSelectedCategory: noopFn,
+  toggleDarkMode: noopFn,
+  setUnreadOnly: noopFn,
+  setSidebarOpen: noopFn,
+}
+
+// Zustand hooks can be called with or without a selector
+function makeStoreHook<T>(state: T) {
+  return (selector?: (s: T) => unknown) => {
+    if (typeof selector === 'function') {
+      return selector(state)
+    }
+    return state
+  }
+}
+
+function makeQueryClient() {
+  return new QueryClient({
+    defaultOptions: {
+      queries: { retry: false },
+      mutations: { retry: false },
+    },
+  })
+}
+
+function renderAppAtRoute(route: string) {
+  currentInitialRoute = route
+  const queryClient = makeQueryClient()
+  return render(
+    <QueryClientProvider client={queryClient}>
+      <App />
+    </QueryClientProvider>
+  )
+}
+
+describe('Property 1: Rotas públicas acessíveis sem autenticação', () => {
+  beforeEach(() => {
+    vi.clearAllMocks()
+
+    // isAuthenticated = false for all runs
+    authState.isAuthenticated = false
+    mockUseAuthStore.mockImplementation(makeStoreHook(authState))
+    mockUseUiStore.mockImplementation(makeStoreHook(uiState))
+
+    // Mock API calls to return empty data so components don't fail on network requests
+    mockNewsApi.getAll.mockResolvedValue({ items: [], totalCount: 0 })
+    mockFeedsApi.getAll.mockResolvedValue([])
+  })
+
+  it('para qualquer rota pública com isAuthenticated=false, não há redirecionamento para /login', async () => {
+    await fc.assert(
+      fc.asyncProperty(
+        fc.constantFrom('/', '/sources'),
+        async (route) => {
+          const { unmount, container } = renderAppAtRoute(route)
+
+          // Give React a tick to render and process any redirects
+          await new Promise((resolve) => setTimeout(resolve, 0))
+
+          // The login page has a password input that uniquely identifies it.
+          // If we were redirected to /login, the login form would be present.
+          const passwordInput = container.querySelector('input[type="password"]')
+          const isOnLoginPage = passwordInput !== null
+
+          unmount()
+
+          if (isOnLoginPage) {
+            throw new Error(
+              `Route "${route}" with isAuthenticated=false redirected to /login, but it should be publicly accessible`
+            )
+          }
+        }
+      ),
+      { numRuns: 100 }
+    )
+  })
+})

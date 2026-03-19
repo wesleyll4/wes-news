@@ -51,4 +51,11 @@ public class UserRepository(AppDbContext context) : IUserRepository
             await context.SaveChangesAsync(cancellationToken);
         }
     }
+
+    public async Task<IEnumerable<User>> GetDigestEnabledUsersAsync(CancellationToken cancellationToken = default)
+    {
+        return await context.Users
+            .Where(u => u.DigestEnabled && !string.IsNullOrEmpty(u.Email))
+            .ToListAsync(cancellationToken);
+    }
 }

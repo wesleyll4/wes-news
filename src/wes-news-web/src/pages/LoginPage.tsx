@@ -120,13 +120,20 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-10 pt-8 border-t border-zinc-200/50 dark:border-zinc-800/50 text-center">
+          <div className="mt-10 pt-8 border-t border-zinc-200/50 dark:border-zinc-800/50 space-y-4 text-center">
             <p className="text-zinc-500 dark:text-zinc-400 text-sm font-medium">
               New to the system?{' '}
               <Link to="/register" className="text-indigo-600 dark:text-indigo-400 font-bold hover:underline underline-offset-4">
                 Initialize account
               </Link>
             </p>
+            <button
+              type="button"
+              onClick={() => navigate('/')}
+              className="text-zinc-400 dark:text-zinc-500 text-xs font-medium hover:text-zinc-600 dark:hover:text-zinc-300 transition-colors"
+            >
+              Continue as visitor →
+            </button>
           </div>
         </div>
 
