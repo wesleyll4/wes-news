@@ -159,6 +159,11 @@ public class DigestPreferenceWebFactory : WebApplicationFactory<Program>, IAsync
             if (bgDescriptor is not null)
                 services.Remove(bgDescriptor);
 
+            ServiceDescriptor? quartzDescriptor = services.SingleOrDefault(
+                d => d.ImplementationType == typeof(Quartz.QuartzHostedService));
+            if (quartzDescriptor is not null)
+                services.Remove(quartzDescriptor);
+
             services.AddSingleton(_userIdHolder);
 
             services.AddAuthentication("Test")
@@ -190,13 +195,6 @@ public class DigestPreferenceWebFactory : WebApplicationFactory<Program>, IAsync
     {
         await base.DisposeAsync();
         _connection.Dispose();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-            _connection.Dispose();
     }
 }
 
@@ -431,6 +429,11 @@ public class DeleteAccountWebFactory : WebApplicationFactory<Program>, IAsyncLif
             if (bgDescriptor is not null)
                 services.Remove(bgDescriptor);
 
+            ServiceDescriptor? quartzDescriptor = services.SingleOrDefault(
+                d => d.ImplementationType == typeof(Quartz.QuartzHostedService));
+            if (quartzDescriptor is not null)
+                services.Remove(quartzDescriptor);
+
             services.AddSingleton(_userIdHolder);
 
             services.AddAuthentication("Test")
@@ -462,13 +465,6 @@ public class DeleteAccountWebFactory : WebApplicationFactory<Program>, IAsyncLif
     {
         await base.DisposeAsync();
         _connection.Dispose();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-            _connection.Dispose();
     }
 }
 
@@ -573,6 +569,11 @@ public class NoAuthWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
                 d => d.ImplementationType == typeof(WesNews.Infrastructure.BackgroundServices.BackgroundFetchService));
             if (bgDescriptor is not null)
                 services.Remove(bgDescriptor);
+
+            ServiceDescriptor? quartzDescriptor = services.SingleOrDefault(
+                d => d.ImplementationType == typeof(Quartz.QuartzHostedService));
+            if (quartzDescriptor is not null)
+                services.Remove(quartzDescriptor);
         });
 
         builder.UseEnvironment("Testing");
@@ -590,13 +591,6 @@ public class NoAuthWebFactory : WebApplicationFactory<Program>, IAsyncLifetime
     {
         await base.DisposeAsync();
         _connection.Dispose();
-    }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-            _connection.Dispose();
     }
 }
 

@@ -36,6 +36,7 @@ public class CustomWebAppFactory : WebApplicationFactory<Program>
             services.AddScoped(_ => emailStub);
 
             RemoveHostedService<WesNews.Infrastructure.BackgroundServices.BackgroundFetchService>(services);
+            RemoveHostedService<Quartz.QuartzHostedService>(services);
 
             services.AddAuthentication("Test")
                 .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });

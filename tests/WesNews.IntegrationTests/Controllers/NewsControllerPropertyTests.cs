@@ -118,6 +118,11 @@ public class PublicAccessWebFactory : WebApplicationFactory<Program>, IAsyncLife
             if (bgDescriptor is not null)
                 services.Remove(bgDescriptor);
 
+            ServiceDescriptor? quartzDescriptor = services.SingleOrDefault(
+                d => d.ImplementationType == typeof(Quartz.QuartzHostedService));
+            if (quartzDescriptor is not null)
+                services.Remove(quartzDescriptor);
+
             // Register the Test auth scheme so authenticated requests work,
             // but do NOT set a fallback policy — anonymous requests must be allowed.
             services.AddAuthentication("Test")
