@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useRef, useEffect } from 'react'
 import { useUiStore } from '../store/uiStore'
 import { useAuthStore } from '../store/authStore'
 import { newsApi } from '../api/client'
@@ -14,6 +15,11 @@ export default function FeedPage() {
   const { selectedCategory, searchTerm, unreadOnly, selectedArticleId, setSelectedArticleId } = useUiStore()
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated)
   const queryClient = useQueryClient()
+  const scrollRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    scrollRef.current?.scrollTo({ top: 0, behavior: 'instant' })
+  }, [selectedCategory, unreadOnly, searchTerm])
 
   const { data, isLoading, refetch, isFetching } = useQuery({
     queryKey: ['news', selectedCategory, searchTerm, unreadOnly],
@@ -79,6 +85,7 @@ export default function FeedPage() {
         </div>
 
         <motion.div
+          ref={scrollRef}
           layout
           className="flex-1 overflow-y-auto custom-scrollbar pb-10"
         >
