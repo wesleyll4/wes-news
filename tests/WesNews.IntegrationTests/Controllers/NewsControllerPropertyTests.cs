@@ -147,13 +147,6 @@ public class PublicAccessWebFactory : WebApplicationFactory<Program>, IAsyncLife
         await base.DisposeAsync();
         _connection.Dispose();
     }
-
-    protected override void Dispose(bool disposing)
-    {
-        base.Dispose(disposing);
-        if (disposing)
-            _connection.Dispose();
-    }
 }
 
 /// <summary>
